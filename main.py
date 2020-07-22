@@ -68,23 +68,18 @@ async def leave(ctx):
             if(x.guild == ctx.message.guild):
                 return await x.disconnect()
 
-@bot.command()
-async def alle(ctx):
+@bot.command(help="Sprachkanalbefehl")
+async def willkommen(ctx):
     voice_channel = ctx.message.author.voice.channel
     if voice_channel != None:
-        channel = voice_channel.name
-        await ctx.send('User is in channel: ' + channel)
         vc = await voice_channel.connect()
-        vc.play(discord.FFmpegPCMAudio('testing.mp3'), after=lambda e: print('done', e))
+        vc.play(discord.FFmpegPCMAudio('welcome.mp3'), after=lambda e: print('done', e))
         while vc.is_playing() == True:
             pass
         else:
             for x in bot.voice_clients:
                  if (x.guild == ctx.message.guild):
                      return await x.disconnect()
-
-    else:
-        await ctx.send('User is not in a channel.')
 
 
 # @bot.event
@@ -96,11 +91,34 @@ async def alle(ctx):
 async def on_message(message):
     if message.author == bot.user:
         return
-    if message.content in ["wie viele?", "Wie viele?"]:
-        await message.channel.send("Alle.")
     if "mama mia" in str(message.content).lower():
         await message.channel.send(file=discord.File('mamamia.png'))
-
+    if "wie viele" in str(message.content).lower():
+        try:
+            voice_channel = message.author.voice.channel
+            vc = await voice_channel.connect()
+            vc.play(discord.FFmpegPCMAudio('alle.mp3'), after=lambda e: print('done', e))
+            while vc.is_playing() == True:
+                pass
+            else:
+                for x in bot.voice_clients:
+                    if (x.guild == message.guild):
+                        return await x.disconnect()
+        except:
+            await message.channel.send("Alle."+" "+str(message.author.mention))
+    if "teewurst?" in str(message.content).lower():
+        try:
+            voice_channel = message.author.voice.channel
+            vc = await voice_channel.connect()
+            vc.play(discord.FFmpegPCMAudio('ruegenwalder.mp3'), after=lambda e: print('done', e))
+            while vc.is_playing() == True:
+                pass
+            else:
+                for x in bot.voice_clients:
+                    if (x.guild == message.guild):
+                        return await x.disconnect()
+        except:
+            await message.channel.send("Rügenwalder."+" "+str(message.author.mention))
     await bot.process_commands(message)
 
 
