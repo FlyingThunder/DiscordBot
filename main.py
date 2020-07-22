@@ -28,7 +28,6 @@ def Mainbot():
                 f.close()
         else:
             e.close()
-            Mainbot()
     print(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
     file = open("data.json","r+")
@@ -40,7 +39,7 @@ def Mainbot():
     file.close()
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-@bot.command(name="Elektrojude")
+@bot.command(name="Wissen")
 async def okbrudimongo_post(ctx):
     await ctx.send(Mainbot())
 
@@ -54,6 +53,8 @@ async def clean(ctx, limit: int):
         await ctx.channel.purge(limit=limit)
         await ctx.send('Cleared by {}'.format(ctx.author.mention))
         await ctx.message.delete()
+
+
 
 @bot.event
 async def on_command_error(ctx, error):
