@@ -1,12 +1,9 @@
 import os
-import random
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 import praw
 import json
-import urllib.request
-import asyncio
 
 #.env laden
 load_dotenv()
