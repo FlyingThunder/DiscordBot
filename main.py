@@ -8,6 +8,10 @@ import json
 #.env laden
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+client_id_var = os.getenv("reddit_client_id")
+client_secret_var = os.getenv("reddit_client_secret")
+user_agent_var = os.getenv("reddit_user_agent")
+
 
 #bot command präfix
 bot = commands.Bot(command_prefix='!')
@@ -15,7 +19,7 @@ bot = commands.Bot(command_prefix='!')
 
 #reddit API laden
 def Mainbot():
-    reddit = praw.Reddit(client_id='x',client_secret='x',user_agent='x')
+    reddit = praw.Reddit(client_id=client_id_var,client_secret=client_secret_var,user_agent=user_agent_var)
     post = reddit.subreddit('okbrudimongo').random()
     x = post.id
 
