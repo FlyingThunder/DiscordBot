@@ -15,7 +15,7 @@ user_agent_var = os.getenv("reddit_user_agent")
 
 #bot command präfix
 bot = commands.Bot(command_prefix='!')
-
+ffmpegpath = "res/ffmpeg.exe"
 
 #reddit API laden
 def Mainbot():
@@ -23,17 +23,17 @@ def Mainbot():
     post = reddit.subreddit('okbrudimongo').random()
     x = post.id
 
-    with open('data.json', 'r') as e:
+    with open('res/data.json', 'r') as e:
         eread = e.read()
         if x not in eread:
-            with open('data.json', 'a') as f:
+            with open('res/data.json', 'a') as f:
                 json.dump(x, f)
                 f.close()
         else:
             e.close()
     print(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-    file = open("data.json","r+")
+    file = open("res/data.json", "r+")
     readfile = file.read()
     print(readfile.count('"'))
     if readfile.count('"')>100:
@@ -59,7 +59,7 @@ class EnergetischeMatrix(commands.Cog):
         voice_channel = ctx.message.author.voice.channel
         if voice_channel != None:
             vc = await voice_channel.connect()
-            vc.play(discord.FFmpegPCMAudio('welcome.mp3'), after=lambda e: print('done', e))
+            vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/welcome.mp3'), after=lambda e: print('done', e))
             while vc.is_playing() == True:
                 pass
             else:
@@ -118,12 +118,12 @@ async def on_message(message):
     if message.author == bot.user:
         return
     if "mama mia" in str(message.content).lower():
-        await message.channel.send(file=discord.File('mamamia.png'))
+        await message.channel.send(file=discord.File('res/mamamia.png'))
     if "wie viele" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
-            vc.play(discord.FFmpegPCMAudio('alle.mp3'), after=lambda e: print('done', e))
+            vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/alle.mp3'), after=lambda e: print('done', e))
             while vc.is_playing() == True:
                 pass
             else:
@@ -136,7 +136,7 @@ async def on_message(message):
         try:
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
-            vc.play(discord.FFmpegPCMAudio('ruegenwalder.mp3'), after=lambda e: print('done', e))
+            vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/ruegenwalder.mp3'), after=lambda e: print('done', e))
             while vc.is_playing() == True:
                 pass
             else:
