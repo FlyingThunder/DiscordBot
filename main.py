@@ -7,7 +7,7 @@ import json
 
 #.env laden
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('discord_token')
 client_id_var = os.getenv("reddit_client_id")
 client_secret_var = os.getenv("reddit_client_secret")
 user_agent_var = os.getenv("reddit_user_agent")
