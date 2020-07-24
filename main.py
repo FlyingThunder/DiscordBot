@@ -5,6 +5,7 @@ from discord.ext import commands
 import praw
 import json
 import sys
+from datetime import datetime
 
 #.env laden
 load_dotenv()
@@ -17,6 +18,8 @@ user_agent_var = os.getenv("reddit_user_agent")
 #bot command präfix
 bot = commands.Bot(command_prefix='!')
 ffmpegpath = "res/ffmpeg.exe"
+startTime = datetime.now()
+print(startTime)
 
 #reddit API laden
 def Mainbot():
@@ -48,9 +51,6 @@ class EnergetischeMatrix(commands.Cog):
         self.bot = bot
 
     """keckige mehmehs"""
-
-
-
     @commands.command(help="keckige witze")
     async def wissen(self, ctx):
         await ctx.send(Mainbot())
@@ -71,13 +71,18 @@ class EnergetischeMatrix(commands.Cog):
 class OberkommandoBefehle(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
     @commands.has_permissions(administrator=True)
     async def magie(self, ctx, limit: int):
         await ctx.channel.purge(limit=limit)
         await ctx.send('Cleared by {}'.format(ctx.author.mention))
         await ctx.message.delete()
+
+    commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
+    async def Aufzeit(self, ctx):
+        endTime = datetime.now()
+        print(endTime)
+        await ctx.send('Ich bin schon {} stationiert'.format(endTime - startTime))
 
 
 
@@ -124,7 +129,11 @@ async def on_message(message):
     if "wie viele" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
+            print(voice_channel)
+            sys.stdout.flush()
             vc = await voice_channel.connect()
+            print(vc)
+            sys.stdout.flush()
             vc.play(discord.FFmpegPCMAudio(source='res/alle.mp3'))
             while vc.is_playing() == True:
                 pass
