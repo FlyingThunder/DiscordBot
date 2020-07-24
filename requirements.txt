@@ -22,3 +22,5 @@ websocket-client==0.57.0
 websockets==8.1
 yarl==1.4.2
 cffi==1.14.0
+wheel==0.34.2
+ffmpeg==1.4
