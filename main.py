@@ -60,7 +60,7 @@ class EnergetischeMatrix(commands.Cog):
         voice_channel = ctx.message.author.voice.channel
         if voice_channel != None:
             vc = await voice_channel.connect()
-            vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/welcome.mp3'))
+            vc.play(discord.FFmpegPCMAudio(source='res/welcome.mp3'))
             while vc.is_playing() == True:
                 pass
             else:
@@ -124,11 +124,7 @@ async def on_message(message):
     if "wie viele" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
-            print(voice_channel)
-            sys.stdout.flush()
             vc = await voice_channel.connect()
-            print(vc)
-            sys.stdout.flush()
             vc.play(discord.FFmpegPCMAudio(source='res/alle.mp3'))
             while vc.is_playing() == True:
                 pass
@@ -142,7 +138,7 @@ async def on_message(message):
         try:
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
-            vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/ruegenwalder.mp3'))
+            vc.play(discord.FFmpegPCMAudio(source='res/ruegenwalder.mp3'))
             while vc.is_playing() == True:
                 pass
             else:
