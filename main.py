@@ -78,7 +78,7 @@ class OberkommandoBefehle(commands.Cog):
         await ctx.send('Cleared by {}'.format(ctx.author.mention))
         await ctx.message.delete()
 
-    commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
+    @commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
     async def Aufzeit(self, ctx):
         endTime = datetime.now()
         print(endTime)
