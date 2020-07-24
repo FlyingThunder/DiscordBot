@@ -129,7 +129,7 @@ async def on_message(message):
             vc = await voice_channel.connect()
             print(vc)
             sys.stdout.flush()
-            vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/alle.mp3'))
+            vc.play(discord.FFmpegPCMAudio(source='res/alle.mp3'))
             while vc.is_playing() == True:
                 pass
             else:
