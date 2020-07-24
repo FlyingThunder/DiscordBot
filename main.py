@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 import praw
 import json
+import sys
 
 #.env laden
 load_dotenv()
@@ -122,7 +123,9 @@ async def on_message(message):
     if "wie viele" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
+            sys.stdout.write(voice_channel)
             vc = await voice_channel.connect()
+            sys.stdout.write(vc)
             vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/alle.mp3'))
             while vc.is_playing() == True:
                 pass
