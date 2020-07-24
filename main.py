@@ -91,6 +91,7 @@ async def on_ready():
                     text_channel_list.append(channel)
 
     print(f'{bot.user.name} has connected to Discord!')
+    sys.stdout.flush()
     await text_channel_list[0].send("Bin gelandet auf Aldebaran.")
 
 
@@ -123,9 +124,11 @@ async def on_message(message):
     if "wie viele" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
-            sys.stdout.write(voice_channel)
+            print(voice_channel)
+            sys.stdout.flush()
             vc = await voice_channel.connect()
-            sys.stdout.write(vc)
+            print(vc)
+            sys.stdout.flush()
             vc.play(discord.FFmpegPCMAudio(executable=ffmpegpath, source='res/alle.mp3'))
             while vc.is_playing() == True:
                 pass
