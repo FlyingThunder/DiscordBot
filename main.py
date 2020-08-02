@@ -52,53 +52,59 @@ def Mainbot():
 #     await ctx.send("Test")
 
 
-@bot.command(help="\n Pisse aus meinem Arsch")
+@bot.command(help="zeigt genau das hier an.")
 @commands.has_permissions(add_reactions=True,embed_links=True)
 async def hilfe(ctx, *cog):
-    try:
-        if not cog:
-            """Cog listing.  What more?"""
-            halp=discord.Embed(title='Verfügbare Wege der Volksverhetzung:',
-                               description='!hilfe [Kategoriename] für mehr Info, du Schwuchtel\n')
-            cogs_desc = ''
-            for x in bot.cogs:
-                cogs_desc += ('{}: {}'.format(x,bot.cogs[x].__doc__)+'\n')
-            halp.add_field(name='Kategorien:',value=cogs_desc[0:len(cogs_desc)-1],inline=False)
-            cmds_desc = ''
-            Uncategorized_Command_Exist = False
-            for y in bot.walk_commands():
-                print(y.cog_name)
-                if not y.cog_name and not y.hidden:
-                    Uncategorized_Command_Exist = True
-                    cmds_desc += ('{}: {}'.format(y.name,y.help)+'\n')
-            if Uncategorized_Command_Exist == True:
-                halp.add_field(name='Uncatergorized Commands',value=cmds_desc[0:len(cmds_desc)-1],inline=False)
-            await ctx.message.add_reaction(emoji='✉')
+    # try:
+    if not cog:
+        """Cog listing.  What more?"""
+        halp=discord.Embed(title='Verfügbare Wege der Volksverhetzung:',
+                           description='')
+        cogs_desc = ''
+
+        for x in bot.cogs:
+            cog_commands = bot.get_cog(x)
+            test = cog_commands.get_commands()
+            cogs_desc += ('\n**{}:** {}'.format(x,bot.cogs[x].__doc__)+'\n')
+            for z in test:
+                cogs_desc += (" - {} / {}  \n".format(str(z),z.help))
+            cogs_desc += "---------"
+
+        halp.add_field(name='Kategorien:',value=cogs_desc,inline=False)
+        cmds_desc = ''
+        Uncategorized_Command_Exist = False
+        for y in bot.walk_commands():
+            if not y.cog_name and not y.hidden:
+                Uncategorized_Command_Exist = True
+                cmds_desc += ('{}: {}'.format(y.name,y.help)+'\n')
+        if Uncategorized_Command_Exist == True:
+            halp.add_field(name='Diverses:',value=cmds_desc[0:len(cmds_desc)-1],inline=False)
+        await ctx.message.add_reaction(emoji='✉')
+        await ctx.message.author.send('',embed=halp)
+    else:
+        """Helps me remind you if you pass too many args."""
+        if len(cog) > 1:
+            halp = discord.Embed(title='Error!',description='That is way too many cogs!',color=discord.Color.red())
             await ctx.message.author.send('',embed=halp)
         else:
-            """Helps me remind you if you pass too many args."""
-            if len(cog) > 1:
-                halp = discord.Embed(title='Error!',description='That is way too many cogs!',color=discord.Color.red())
-                await ctx.message.author.send('',embed=halp)
+            """Command listing within a cog."""
+            found = False
+            for x in bot.cogs:
+                for y in cog:
+                    if x == y:
+                        halp=discord.Embed(title=cog[0]+' Command Listing',description=bot.cogs[cog[0]].__doc__)
+                        for c in bot.get_cog(y).get_commands():
+                            if not c.hidden:
+                                halp.add_field(name=c.name,value=c.help,inline=False)
+                        found = True
+            if not found:
+                """Reminds you if that cog doesn't exist."""
+                halp = discord.Embed(title='Error!',description='How do you even use "'+cog[0]+'"?',color=discord.Color.red())
             else:
-                """Command listing within a cog."""
-                found = False
-                for x in bot.cogs:
-                    for y in cog:
-                        if x == y:
-                            halp=discord.Embed(title=cog[0]+' Command Listing',description=bot.cogs[cog[0]].__doc__)
-                            for c in bot.get_cog(y).get_commands():
-                                if not c.hidden:
-                                    halp.add_field(name=c.name,value=c.help,inline=False)
-                            found = True
-                if not found:
-                    """Reminds you if that cog doesn't exist."""
-                    halp = discord.Embed(title='Error!',description='How do you even use "'+cog[0]+'"?',color=discord.Color.red())
-                else:
-                    await ctx.message.add_reaction(emoji='✉')
-                await ctx.message.author.send('',embed=halp)
-    except:
-        await ctx.send("Excuse me, I can't send embeds.")
+                await ctx.message.add_reaction(emoji='✉')
+            await ctx.message.author.send('',embed=halp)
+    # except:
+    #     await ctx.send("Excuse me, I can't send embeds.")
 
 
 
@@ -110,12 +116,14 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
+
     @commands.command(help="keckige witze")
-    async def wissen(self, ctx):
+    async def Wissen(self, ctx):
         await ctx.send(Mainbot())
 
     @commands.command(help="Ein Gruß vom Doktor")
-    async def willkommen(self, ctx):
+    async def Willkommen(self, ctx):
         voice_channel = ctx.message.author.voice.channel
         if voice_channel != None:
             vc = await voice_channel.connect()
@@ -134,19 +142,20 @@ class Magie(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
     @commands.has_permissions(administrator=True)
-    async def magie(self, ctx, limit: int):
+    async def Genozid(self, ctx, limit: int):
         await ctx.channel.purge(limit=limit)
         await ctx.send('Cleared by {}'.format(ctx.author.mention))
         await ctx.message.delete()
+
 
     @commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
     async def Aufzeit(self, ctx):
         endTime = datetime.now()
         print(endTime)
         await ctx.send('Ich bin schon {} stationiert'.format(endTime - startTime))
-
 
 
 @bot.event
@@ -224,5 +233,4 @@ async def on_message(message):
 
 bot.add_cog(Physik(bot))
 bot.add_cog(Magie(bot))
-# bot.add_cog(MyHelp(bot))
 bot.run(TOKEN)
