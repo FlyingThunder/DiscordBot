@@ -47,24 +47,32 @@ def Mainbot():
     file.close()
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-@commands.command(pass_context=True)
+# @bot.command(name="testname", help="testdescription")
+# async def Test(ctx):
+#     await ctx.send("Test")
+
+
+@bot.command(help="\n Pisse aus meinem Arsch")
 @commands.has_permissions(add_reactions=True,embed_links=True)
-async def help(self,ctx,*cog):
-    """Gets all cogs and commands of mine."""
+async def hilfe(ctx, *cog):
     try:
         if not cog:
             """Cog listing.  What more?"""
-            halp=discord.Embed(title='Cog Listing and Uncatergorized Commands',
-                               description='Use `!help *cog*` to find out more about them!\n(BTW, the Cog Name Must Be in Title Case, Just Like this Sentence.)')
+            halp=discord.Embed(title='Verfügbare Wege der Volksverhetzung:',
+                               description='!hilfe [Kategoriename] für mehr Info, du Schwuchtel\n')
             cogs_desc = ''
-            for x in self.bot.cogs:
-                cogs_desc += ('{} - {}'.format(x,self.bot.cogs[x].__doc__)+'\n')
-            halp.add_field(name='Cogs',value=cogs_desc[0:len(cogs_desc)-1],inline=False)
+            for x in bot.cogs:
+                cogs_desc += ('{}: {}'.format(x,bot.cogs[x].__doc__)+'\n')
+            halp.add_field(name='Kategorien:',value=cogs_desc[0:len(cogs_desc)-1],inline=False)
             cmds_desc = ''
-            for y in self.bot.walk_commands():
+            Uncategorized_Command_Exist = False
+            for y in bot.walk_commands():
+                print(y.cog_name)
                 if not y.cog_name and not y.hidden:
-                    cmds_desc += ('{} - {}'.format(y.name,y.help)+'\n')
-            halp.add_field(name='Uncatergorized Commands',value=cmds_desc[0:len(cmds_desc)-1],inline=False)
+                    Uncategorized_Command_Exist = True
+                    cmds_desc += ('{}: {}'.format(y.name,y.help)+'\n')
+            if Uncategorized_Command_Exist == True:
+                halp.add_field(name='Uncatergorized Commands',value=cmds_desc[0:len(cmds_desc)-1],inline=False)
             await ctx.message.add_reaction(emoji='✉')
             await ctx.message.author.send('',embed=halp)
         else:
@@ -75,11 +83,11 @@ async def help(self,ctx,*cog):
             else:
                 """Command listing within a cog."""
                 found = False
-                for x in self.bot.cogs:
+                for x in bot.cogs:
                     for y in cog:
                         if x == y:
-                            halp=discord.Embed(title=cog[0]+' Command Listing',description=self.bot.cogs[cog[0]].__doc__)
-                            for c in self.bot.get_cog(y).get_commands():
+                            halp=discord.Embed(title=cog[0]+' Command Listing',description=bot.cogs[cog[0]].__doc__)
+                            for c in bot.get_cog(y).get_commands():
                                 if not c.hidden:
                                     halp.add_field(name=c.name,value=c.help,inline=False)
                             found = True
@@ -94,7 +102,11 @@ async def help(self,ctx,*cog):
 
 
 
-class EnergetischeMatrix(commands.Cog):
+class Physik(commands.Cog):
+    """
+    Voll lustig lol rofl kek
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -115,7 +127,10 @@ class EnergetischeMatrix(commands.Cog):
                     if (x.guild == ctx.message.guild):
                         return await x.disconnect()
 
-class OberkommandoBefehle(commands.Cog):
+class Magie(commands.Cog):
+    """
+    Nur für den Führer!
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -207,7 +222,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.add_cog(EnergetischeMatrix(bot))
-bot.add_cog(OberkommandoBefehle(bot))
-bot.add_command(help)
+bot.add_cog(Physik(bot))
+bot.add_cog(Magie(bot))
+# bot.add_cog(MyHelp(bot))
 bot.run(TOKEN)
