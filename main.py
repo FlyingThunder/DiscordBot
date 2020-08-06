@@ -102,6 +102,7 @@ async def hilfe(ctx, *cog):
                 halp = discord.Embed(title='Error!',description='How do you even use "'+cog[0]+'"?',color=discord.Color.red())
             else:
                 await ctx.message.add_reaction(emoji='✉')
+            halp.add_field(name='Diverses:', value='"Wie viele", "Teewurst?", "Alarm", "Wer ist das"', inline=False)
             await ctx.message.author.send('',embed=halp)
     # except:
     #     await ctx.send("Excuse me, I can't send embeds.")
