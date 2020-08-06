@@ -199,7 +199,7 @@ async def on_message(message):
         return
     if "mama mia" in str(message.content).lower():
         await message.channel.send(file=discord.File('res/mamamia.png'))
-    if "123456" in str(message.content).lower():
+    if "rügenwalder mühlenfest" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
