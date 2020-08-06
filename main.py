@@ -251,7 +251,7 @@ async def on_message(message):
                         return await x.disconnect()
         except:
             await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
-    if "Mühlenfest" in str(message.content).lower():
+    if "Geile Mukke" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
