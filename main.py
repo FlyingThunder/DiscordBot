@@ -253,6 +253,19 @@ async def on_message(message):
                         return await x.disconnect()
         except:
             await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
+    if "Rügenwalder Mühlenfest" in str(message.content).lower():
+        try:
+            voice_channel = message.author.voice.channel
+            vc = await voice_channel.connect()
+            vc.play(discord.FFmpegPCMAudio(source='res/teewurst_jingle.mp3'))
+            while vc.is_playing() == True:
+                pass
+            else:
+                for x in bot.voice_clients:
+                    if (x.guild == message.guild):
+                        return await x.disconnect()
+        except:
+            await message.channel.send("Rügenwalder Mühlenfest!"+" "+str(message.author.mention))
     if "achtarmiger" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
@@ -265,7 +278,7 @@ async def on_message(message):
                     if (x.guild == message.guild):
                         return await x.disconnect()
         except:
-            await message.channel.send("Johann ist dampfen."+" "+str(message.author.mention))
+            await message.channel.send("@Gammanus macht Stulle."+" "+str(message.author.mention))
     await bot.process_commands(message)
 
 
