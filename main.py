@@ -163,9 +163,7 @@ class Magie(commands.Cog):
 async def on_ready():
     text_channel_list = []
     for guild in bot.guilds:
-        print(guild)
         for channel in guild.channels:
-            print(channel)
             if channel.category is not None:
                 if "Text Channels" in str(channel.category):
                     text_channel_list.append(channel)
@@ -255,6 +253,7 @@ async def on_message(message):
             await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
     if "Teewursthymne" in str(message.content).lower():
         try:
+            await message.channel.send("Rügenwalder Mühlenfest!" + " " + str(message.author.mention))
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
             vc.play(discord.FFmpegPCMAudio(source='res/teewurst_jingle.mp3'))
