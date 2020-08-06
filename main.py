@@ -239,6 +239,19 @@ async def on_message(message):
                         return await x.disconnect()
         except:
             await message.channel.send("Rügenwalder."+" "+str(message.author.mention))
+    if "wer ist das" in str(message.content).lower():
+        try:
+            voice_channel = message.author.voice.channel
+            vc = await voice_channel.connect()
+            vc.play(discord.FFmpegPCMAudio(source='res/wer_ist_das.mp3'))
+            while vc.is_playing() == True:
+                pass
+            else:
+                for x in bot.voice_clients:
+                    if (x.guild == message.guild):
+                        return await x.disconnect()
+        except:
+            await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
     await bot.process_commands(message)
 
 
