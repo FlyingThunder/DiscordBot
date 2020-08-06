@@ -251,9 +251,8 @@ async def on_message(message):
                         return await x.disconnect()
         except:
             await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
-    if "liedbitte" in str(message.content).lower():
+    if "Mühlenfest" in str(message.content).lower():
         try:
-            await message.channel.send("Rügenwalder Mühlenfest!" + " " + str(message.author.mention))
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
             vc.play(discord.FFmpegPCMAudio(source='res/teewurst_jingle.mp3'))
