@@ -102,7 +102,7 @@ async def hilfe(ctx, *cog):
                 halp = discord.Embed(title='Error!',description='How do you even use "'+cog[0]+'"?',color=discord.Color.red())
             else:
                 await ctx.message.add_reaction(emoji='✉')
-            halp.add_field(name='Diverses:', value='"Wie viele", "Teewurst?", "Alarm", "Wer ist das"', inline=False)
+            halp.add_field(name='Voicechat Befehle:', value='"Wie viele", "Teewurst?", "Alarm", "Wer ist das"', inline=False)
             await ctx.message.author.send('',embed=halp)
     # except:
     #     await ctx.send("Excuse me, I can't send embeds.")
@@ -253,7 +253,7 @@ async def on_message(message):
                         return await x.disconnect()
         except:
             await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
-    if "Rügenwalder Mühlenfest" in str(message.content).lower():
+    if "Teewursthymne" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
             vc = await voice_channel.connect()
