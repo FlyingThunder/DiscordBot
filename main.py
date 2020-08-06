@@ -110,7 +110,7 @@ async def hilfe(ctx, *cog):
 
 class Physik(commands.Cog):
     """
-    Voll lustig lol rofl kek
+    Sinnlose dumme Scheiße
     """
 
     def __init__(self, bot):
@@ -137,7 +137,7 @@ class Physik(commands.Cog):
 
 class Magie(commands.Cog):
     """
-    Nur für den Führer!
+    Weniger sinnlos, trotzdem Scheiße
     """
     def __init__(self, bot):
         self.bot = bot
@@ -162,12 +162,14 @@ class Magie(commands.Cog):
 async def on_ready():
     text_channel_list = []
     for guild in bot.guilds:
+        print(guild)
         for channel in guild.channels:
+            print(channel)
             if channel.category is not None:
                 if "Text Channels" in str(channel.category):
                     text_channel_list.append(channel)
 
-    print(f'{bot.user.name} has connected to Discord!')
+    print(f'{bot.user.name} has connected to {guild}]')
     sys.stdout.flush()
     await text_channel_list[0].send("Bin gelandet auf Aldebaran.")
 
@@ -179,12 +181,12 @@ async def on_ready():
 #         await channel.connect()
 #         return channel.connect()
 
-# @bot.command()
-# async def leave(ctx):
-#         print(bot.voice_clients)
-#         for x in bot.voice_clients:
-#             if(x.guild == ctx.message.guild):
-#                 return await x.disconnect()
+@bot.command()
+async def leave(ctx):
+        print(bot.voice_clients)
+        for x in bot.voice_clients:
+            if(x.guild == ctx.message.guild):
+                return await x.disconnect()
 
 
 # @bot.event
@@ -198,14 +200,23 @@ async def on_message(message):
         return
     if "mama mia" in str(message.content).lower():
         await message.channel.send(file=discord.File('res/mamamia.png'))
+    if "alarm" in str(message.content).lower():
+        try:
+            voice_channel = message.author.voice.channel
+            vc = await voice_channel.connect()
+            vc.play(discord.FFmpegPCMAudio(source='res/er_kommt.mp3'))
+            while vc.is_playing() == True:
+                pass
+            else:
+                for x in bot.voice_clients:
+                    if (x.guild == message.guild):
+                        return await x.disconnect()
+        except:
+            await message.channel.send("Er kommt!"+" "+str(message.author.mention))
     if "wie viele" in str(message.content).lower():
         try:
             voice_channel = message.author.voice.channel
-            print(voice_channel)
-            sys.stdout.flush()
             vc = await voice_channel.connect()
-            print(vc)
-            sys.stdout.flush()
             vc.play(discord.FFmpegPCMAudio(source='res/alle.mp3'))
             while vc.is_playing() == True:
                 pass
