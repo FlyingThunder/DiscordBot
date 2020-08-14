@@ -6,6 +6,8 @@ import praw
 import json
 import sys
 from datetime import datetime
+from riotwatcher import LolWatcher, ApiError
+
 
 #.env laden
 load_dotenv()
@@ -13,6 +15,7 @@ TOKEN = os.getenv('discord_token')
 client_id_var = os.getenv("reddit_client_id")
 client_secret_var = os.getenv("reddit_client_secret")
 user_agent_var = os.getenv("reddit_user_agent")
+riot_api_key = os.getenv("riot_api_key")
 
 
 #bot command präfix
@@ -47,6 +50,42 @@ def Mainbot():
     file.close()
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
+def Bruder(name):
+    watcher = LolWatcher(riot_api_key)
+    my_region = 'euw1'
+    latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
+    static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
+    champ_dict = {}
+    for key in static_champ_list['data']:
+        row = static_champ_list['data'][key]
+        champ_dict[row['key']] = row['id']
+    me = watcher.summoner.by_name(my_region, name)
+
+
+    gametype = None
+    champion = None
+    starttime = None
+    status = None
+    try:
+        playerinstance = watcher.spectator.by_summoner(my_region, me['id'])
+        matchstart = str(playerinstance['gameStartTime'])[:-3]
+        participants = playerinstance['participants']
+
+        for x in participants:
+            if x['summonerName'] == name:
+                champion = champ_dict[str(x['championId'])]
+
+
+
+        status = "Ingame"
+        if str(playerinstance['gameType']) == "CUSTOM_GAME":
+            gametype = "Customgame"
+        starttime = datetime.fromtimestamp(int(matchstart)).strftime('%Y-%m-%d %H:%M:%S')
+
+    except:
+        status = "Not ingame"
+    return (name, status, gametype, champion, starttime)
+
 # @bot.command(name="testname", help="testdescription")
 # async def Test(ctx):
 #     await ctx.send("Test")
@@ -54,7 +93,7 @@ def Mainbot():
 
 @bot.command(help="zeigt genau das hier an.")
 @commands.has_permissions(add_reactions=True,embed_links=True)
-async def hilfe(ctx, *cog):
+async def Hilfe(ctx, *cog):
     # try:
     if not cog:
         """Cog listing.  What more?"""
@@ -118,6 +157,28 @@ class Physik(commands.Cog):
         self.bot = bot
 
 
+    @commands.command(help="SEID IHR BEREIT KINDER?")
+    async def Squad(self, ctx):
+        squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
+
+
+
+        mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
+                       "Andrê": "Azzazzin"}
+        for x in mongos_list.keys():
+            y = mongos_list[x]
+            data = Bruder(name=y)
+            print(data[1])
+            if data[1] == "Ingame":
+                playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
+            else:
+                playerinfo = "ist nicht ingame"
+            squad_info.add_field(name=str(x), value=playerinfo, inline=False)
+
+
+        await ctx.send('', embed=squad_info)
+
+
 
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
@@ -168,7 +229,7 @@ async def on_ready():
                 if "Text Channels" in str(channel.category):
                     text_channel_list.append(channel)
 
-    print(f'{bot.user.name} has connected to {guild}]')
+    print(f'{bot.user.name} has connected to {guild}')
     sys.stdout.flush()
     await text_channel_list[0].send("Bin gelandet auf Aldebaran.")
 
