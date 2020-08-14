@@ -61,11 +61,11 @@ def Bruder(name):
         champ_dict[row['key']] = row['id']
     me = watcher.summoner.by_name(my_region, name)
 
-
-    gametype = None
+    gametype = "Unknown"
     champion = None
     starttime = None
     status = None
+
     try:
         playerinstance = watcher.spectator.by_summoner(my_region, me['id'])
         matchstart = str(playerinstance['gameStartTime'])[:-3]
@@ -76,10 +76,22 @@ def Bruder(name):
                 champion = champ_dict[str(x['championId'])]
 
 
-
+        print(playerinstance)
+        print(str(playerinstance['gameType']))
+        print(str(playerinstance['gameMode']))
         status = "Ingame"
-        if str(playerinstance['gameType']) == "CUSTOM_GAME":
-            gametype = "Customgame"
+
+        if str(playerinstance['gameQueueConfigId']) == "400":
+            gametype = "5v5 Normal Draft"
+        if str(playerinstance['gameQueueConfigId']) == "420":
+            gametype = "5v5 Ranked Solo/Duo"
+        if str(playerinstance['gameQueueConfigId']) == "440":
+            gametype = "5v5 Ranked Flex"
+        if str(playerinstance['gameQueueConfigId']) == "450":
+            gametype = "ARAM"
+
+
+
         starttime = datetime.fromtimestamp(int(matchstart)).strftime('%Y-%m-%d %H:%M:%S')
 
     except:
@@ -169,21 +181,23 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="'wie viele?' | 'rügenwalder mühlenfest' | 'alarm' | 'teewurst?' | 'wer ist das?' | 'achtarmiger'")
+    @commands.command(help="'wie_viele?' | 'mühlenfest' | 'alarm' | 'teewurst?' | 'wer_ist_das?' | 'achtarmiger'")
     async def Sag(self, ctx, argument):
         play = None
-        if argument == "wie viele?":
+        if argument == "wieviele?":
             play = "alle"
-        elif argument == "rügenwalder mühlenfest":
+        elif argument == "mühlenfest":
             play = "teewurst_jingle"
         elif argument == "alarm":
             play = "er_kommt"
         elif argument == "teewurst?":
             play = "ruegenwalder"
-        elif argument == "wer ist das?":
+        elif argument == "wer_ist_das?":
             play = "wer_ist_das"
         elif argument == "achtarmiger":
             play = "achtarmiger"
+        else:
+            await ctx.send("kein gültiges funniges meme")
         try:
             await Labern(audiofile=play, message=ctx.message)
         except:
@@ -195,14 +209,12 @@ class Physik(commands.Cog):
     async def Squad(self, ctx):
         squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
 
-
-
         mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
                        "Andrê": "Azzazzin"}
         for x in mongos_list.keys():
             y = mongos_list[x]
             data = Bruder(name=y)
-            print(data[1])
+            print(data)
             if data[1] == "Ingame":
                 playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
             else:
