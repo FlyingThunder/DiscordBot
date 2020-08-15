@@ -17,6 +17,17 @@ client_secret_var = os.getenv("reddit_client_secret")
 user_agent_var = os.getenv("reddit_user_agent")
 riot_api_key = os.getenv("riot_api_key")
 
+watcher = LolWatcher(riot_api_key)
+my_region = 'euw1'
+
+files = os.listdir('res')
+audiofiles = []
+for x in files:
+    if '.mp3' in str(x):
+        audiofiles.append(x)
+print(audiofiles)
+
+
 
 #bot command präfix
 bot = commands.Bot(command_prefix='!',case_insensitive=True)
@@ -26,6 +37,17 @@ startTime = datetime.now()
 print(startTime)
 
 #reddit API laden
+
+def champLookup(champId):
+    latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
+    static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
+    champ_dict = {}
+    for key in static_champ_list['data']:
+        row = static_champ_list['data'][key]
+        champ_dict[row['key']] = row['id']
+
+    return champ_dict[str(champId)]
+
 def Mainbot():
     reddit = praw.Reddit(client_id=client_id_var,client_secret=client_secret_var,user_agent=user_agent_var)
     post = reddit.subreddit('okbrudimongo').random()
@@ -51,14 +73,13 @@ def Mainbot():
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
 def Bruder(name):
-    watcher = LolWatcher(riot_api_key)
-    my_region = 'euw1'
-    latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
-    static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
-    champ_dict = {}
-    for key in static_champ_list['data']:
-        row = static_champ_list['data'][key]
-        champ_dict[row['key']] = row['id']
+    # latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
+    # static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
+    # champ_dict = {}
+    # for key in static_champ_list['data']:
+    #     row = static_champ_list['data'][key]
+    #     champ_dict[row['key']] = row['id']
+
     me = watcher.summoner.by_name(my_region, name)
 
     gametype = "Unknown"
@@ -73,12 +94,10 @@ def Bruder(name):
 
         for x in participants:
             if x['summonerName'] == name:
-                champion = champ_dict[str(x['championId'])]
+                champion = champLookup(str(x['championId']))
 
 
-        print(playerinstance)
-        print(str(playerinstance['gameType']))
-        print(str(playerinstance['gameMode']))
+
         status = "Ingame"
 
         if str(playerinstance['gameQueueConfigId']) == "400":
@@ -89,6 +108,8 @@ def Bruder(name):
             gametype = "5v5 Ranked Flex"
         if str(playerinstance['gameQueueConfigId']) == "450":
             gametype = "ARAM"
+        if str(playerinstance['gameQueueConfigId']) == "700":
+            gametype = "Clash"
 
 
 
@@ -97,6 +118,50 @@ def Bruder(name):
     except:
         status = "Not ingame"
     return (name, status, gametype, champion, starttime)
+
+def Last_10_games(name):
+    me = watcher.summoner.by_name(my_region, name)
+    matches = watcher.match.matchlist_by_account(my_region, me['accountId'])
+    x = matches['matches'][:10]
+    matchlist = []
+    for a in x:
+        matchlist.append(watcher.match.by_id(my_region, a['gameId']))
+
+    output = []
+    letzte10embed = discord.Embed(title='Jason Statistikschinken')
+
+    for y in matchlist:
+        print("New game")
+        for x in y['participantIdentities']:
+            if x['player']['summonerName'] == name:
+                participantId = x['participantId']
+                for z in y['participants']:
+                    if z['participantId'] == participantId:
+                        arguments = []
+                        arguments.append(champLookup(z['championId']))
+                        if z['stats']['win'] == False:
+                            arguments.append("Loss")
+                        elif z['stats']['win'] == True:
+                            arguments.append("Win")
+                        arguments.append(str(z['stats']['kills']) + "/" + str(z['stats']['deaths']) + "/" + str(
+                            z['stats']['assists']))
+                        if str(y['queueId']) == "400":
+                            arguments.append("5v5 Normal Draft")
+                        if str(y['queueId']) == "420":
+                            arguments.append("5v5 Ranked Solo/Duo")
+                        if str(y['queueId']) == "440":
+                            arguments.append("5v5 Ranked Flex")
+                        if str(y['queueId']) == "450":
+                            arguments.append("ARAM")
+                        if str(y['queueId']) == "700":
+                            arguments.append("Clash")
+                        if z['stats']['win'] == False:
+                            letzte10embed.add_field(name=":monkey:", value=str(arguments), inline=False)
+                        elif z['stats']['win'] == True:
+                            letzte10embed.add_field(name=":star_of_david:", value=str(arguments), inline=False)
+
+
+    return(letzte10embed)
 
 async def Labern(audiofile, message):
    voice_channel = message.author.voice.channel
@@ -181,26 +246,15 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="'wie_viele?' | 'mühlenfest' | 'alarm' | 'teewurst?' | 'wer_ist_das?' | 'achtarmiger'")
+    @commands.command(help="stats vong letzte 10 spiele her")
+    async def Letzte10(self, ctx, argument):
+        await ctx.send('', embed=Last_10_games(name=argument))
+
+    @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen! " + str(audiofiles))
     async def Sag(self, ctx, argument):
-        play = None
-        if argument.lower() == "wieviele":
-            play = "wieviele"
-        elif argument.lower() == "teewurstmusik":
-            play = "teewurstmusik"
-        elif argument.lower() == "alarm":
-            play = "alarm"
-        elif argument.lower() == "teewurst":
-            play = "teewurst"
-        elif argument.lower() == "wer":
-            play = "wer"
-        elif argument.lower() == "achtarmiger":
-            play = "achtarmiger"
-        elif argument.lower() == "willkommen":
-            play = "willkommen"
-        else:
-            await ctx.send("kein gültiges funniges meme")
+        play = argument
         try:
+            print(play)
             await Labern(audiofile=play, message=ctx.message)
         except:
             await ctx.send("Spast" + " " + str(ctx.author.mention))
