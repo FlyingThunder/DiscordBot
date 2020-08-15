@@ -9,6 +9,8 @@ from datetime import datetime
 from riotwatcher import LolWatcher, ApiError
 import urllib.request
 import youtube_dl
+from audioclipextractor import AudioClipExtractor, SpecsParser
+
 
 #.env laden
 load_dotenv()
@@ -248,7 +250,7 @@ class Physik(commands.Cog):
         self.bot = bot
 
     @commands.command(help="Youtube -> mp3 download für Audiobefehl")
-    async def add_youtubeaudio(self, ctx, url, name=None):
+    async def add_youtubeaudio(self, ctx, url, name=None, start=None, end=None):
         ydl_opts = {
             'outtmpl': 'test.mp3',
             'format': 'bestaudio/best',
@@ -261,8 +263,22 @@ class Physik(commands.Cog):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        os.rename('test.mp3', 'res/'+str(name)+'.mp3')
 
+
+        if start is not None and end is not None:
+            print(start,end)
+            ext = AudioClipExtractor('test.mp3', 'ffmpeg.exe')
+
+            specs = str(start) + " " + str(end)
+            ext.extract_clips(specs)
+            os.rename('clip1.mp3', 'res/' + str(name) + '.mp3')
+        else:
+            os.rename('test.mp3', 'res/'+str(name)+'.mp3')
+
+        # print(os.listdir())
+        # if os._exists('test.mp3'):
+        #     print("test")
+        os.remove('test.mp3')
         await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
 
 
