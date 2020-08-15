@@ -19,7 +19,7 @@ riot_api_key = os.getenv("riot_api_key")
 
 
 #bot command präfix
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='!',case_insensitive=True)
 bot.remove_command("help")
 ffmpegpath = "res/ffmpeg.exe"
 startTime = datetime.now()
@@ -184,18 +184,20 @@ class Physik(commands.Cog):
     @commands.command(help="'wie_viele?' | 'mühlenfest' | 'alarm' | 'teewurst?' | 'wer_ist_das?' | 'achtarmiger'")
     async def Sag(self, ctx, argument):
         play = None
-        if argument == "wieviele?":
-            play = "alle"
-        elif argument == "mühlenfest":
-            play = "teewurst_jingle"
-        elif argument == "alarm":
-            play = "er_kommt"
-        elif argument == "teewurst?":
-            play = "ruegenwalder"
-        elif argument == "wer_ist_das?":
-            play = "wer_ist_das"
-        elif argument == "achtarmiger":
+        if argument.lower() == "wieviele":
+            play = "wieviele"
+        elif argument.lower() == "teewurstmusik":
+            play = "teewurstmusik"
+        elif argument.lower() == "alarm":
+            play = "alarm"
+        elif argument.lower() == "teewurst":
+            play = "teewurst"
+        elif argument.lower() == "wer":
+            play = "wer"
+        elif argument.lower() == "achtarmiger":
             play = "achtarmiger"
+        elif argument.lower() == "willkommen":
+            play = "willkommen"
         else:
             await ctx.send("kein gültiges funniges meme")
         try:
@@ -229,19 +231,6 @@ class Physik(commands.Cog):
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
         await ctx.send(Mainbot())
-
-    @commands.command(help="Ein Gruß vom Doktor")
-    async def Willkommen(self, ctx):
-        voice_channel = ctx.message.author.voice.channel
-        if voice_channel != None:
-            vc = await voice_channel.connect()
-            vc.play(discord.FFmpegPCMAudio(source='res/welcome.mp3'))
-            while vc.is_playing() == True:
-                pass
-            else:
-                for x in bot.voice_clients:
-                    if (x.guild == ctx.message.guild):
-                        return await x.disconnect()
 
 class Magie(commands.Cog):
     """
