@@ -7,7 +7,8 @@ import json
 import sys
 from datetime import datetime
 from riotwatcher import LolWatcher, ApiError
-
+import urllib.request
+import youtube_dl
 
 #.env laden
 load_dotenv()
@@ -23,7 +24,7 @@ my_region = 'euw1'
 files = os.listdir('res')
 audiofiles = []
 for x in files:
-    if '.mp3' in str(x):
+    if ('.mp3' or '.wav') in str(x):
         audiofiles.append(x)
 print(audiofiles)
 
@@ -195,7 +196,7 @@ async def Hilfe(ctx, *cog):
             test = cog_commands.get_commands()
             cogs_desc += ('\n**{}:** {}'.format(x,bot.cogs[x].__doc__)+'\n')
             for z in test:
-                cogs_desc += (" - {} / {}  \n".format(str(z),z.help))
+                cogs_desc += ("\n - {} \|\|\| {} \n".format(str(z),z.help))
             cogs_desc += "---------"
 
         halp.add_field(name='Kategorien:',value=cogs_desc,inline=False)
@@ -246,11 +247,30 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(help="Youtube -> mp3 download für Audiobefehl")
+    async def add_youtubeaudio(self, ctx, url, name=None):
+        ydl_opts = {
+            'outtmpl': 'test.mp3',
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+        os.rename('test.mp3', 'res/'+str(name)+'.mp3')
+
+        await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+
+
     @commands.command(help="stats vong letzte 10 spiele her")
     async def Letzte10(self, ctx, argument):
         await ctx.send('', embed=Last_10_games(name=argument))
 
-    @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen! " + str(audiofiles))
+    @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen! \n" + str(audiofiles))
     async def Sag(self, ctx, argument):
         play = argument
         try:
@@ -259,7 +279,14 @@ class Physik(commands.Cog):
         except:
             await ctx.send("Spast" + " " + str(ctx.author.mention))
 
-
+    @commands.command(help="URL der Audiodatei (mp3) anhängen + Name des Outputs")
+    async def add_audiofile(self, ctx, link, name=None):
+        print(link)
+        if name == None:
+            urllib.request.urlretrieve(link, "res/"+str(link.split("/")[-1]))
+        else:
+            urllib.request.urlretrieve(link, "res/" + str(name) + ".mp3")
+        await ctx.send("Audiodatei " + str(link.split("/")[-1]) + " hinzugefügt")
 
     @commands.command(help="SEID IHR BEREIT KINDER?")
     async def Squad(self, ctx):
@@ -279,8 +306,6 @@ class Physik(commands.Cog):
 
 
         await ctx.send('', embed=squad_info)
-
-
 
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
