@@ -267,7 +267,7 @@ class Physik(commands.Cog):
 
         if start is not None and end is not None:
             print(start,end)
-            ext = AudioClipExtractor('test.mp3', 'ffmpeg.exe')
+            ext = AudioClipExtractor('test.mp3', ffmpegpath)
 
             specs = str(start) + " " + str(end)
             ext.extract_clips(specs)
