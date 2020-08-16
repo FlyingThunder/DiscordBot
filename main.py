@@ -12,6 +12,7 @@ import youtube_dl
 from audioclipextractor import AudioClipExtractor, SpecsParser
 
 
+
 #.env laden
 load_dotenv()
 TOKEN = os.getenv('discord_token')
@@ -267,7 +268,8 @@ class Physik(commands.Cog):
 
         if start is not None and end is not None:
             print(start,end)
-            ext = AudioClipExtractor('test.mp3', ffmpegpath)
+            #ext = AudioClipExtractor('test.mp3', ffmpegpath)
+            ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
             specs = str(start) + " " + str(end)
             ext.extract_clips(specs)
@@ -390,84 +392,6 @@ async def on_message(message):
         return
     if "mama mia" in str(message.content).lower():
         await message.channel.send(file=discord.File('res/mamamia.png'))
-    # if "rügenwalder mühlenfest" in str(message.content).lower():
-    #     try:
-    #         voice_channel = message.author.voice.channel
-    #         vc = await voice_channel.connect()
-    #         vc.play(discord.FFmpegPCMAudio(source='res/teewurst_jingle.mp3'))
-    #         while vc.is_playing() == True:
-    #             pass
-    #         else:
-    #             for x in bot.voice_clients:
-    #                 if (x.guild == message.guild):
-    #                     return await x.disconnect()
-    #     except:
-    #         await message.channel.send("Rügenwalder Mühlenfest!"+" "+str(message.author.mention))
-    # if "alarm" in str(message.content).lower():
-    #     try:
-    #         voice_channel = message.author.voice.channel
-    #         vc = await voice_channel.connect()
-    #         vc.play(discord.FFmpegPCMAudio(source='res/er_kommt.mp3'))
-    #         while vc.is_playing() == True:
-    #             pass
-    #         else:
-    #             for x in bot.voice_clients:
-    #                 if (x.guild == message.guild):
-    #                     return await x.disconnect()
-    #     except:
-    #         await message.channel.send("Er kommt!"+" "+str(message.author.mention))
-    # if "wie viele" in str(message.content).lower():
-    #     try:
-    #         voice_channel = message.author.voice.channel
-    #         vc = await voice_channel.connect()
-    #         vc.play(discord.FFmpegPCMAudio(source='res/alle.mp3'))
-    #         while vc.is_playing() == True:
-    #             pass
-    #         else:
-    #             for x in bot.voice_clients:
-    #                 if (x.guild == message.guild):
-    #                     return await x.disconnect()
-    #     except:
-    #         await message.channel.send("Alle."+" "+str(message.author.mention))
-    # if "teewurst?" in str(message.content).lower():
-    #     try:
-    #         voice_channel = message.author.voice.channel
-    #         vc = await voice_channel.connect()
-    #         vc.play(discord.FFmpegPCMAudio(source='res/ruegenwalder.mp3'))
-    #         while vc.is_playing() == True:
-    #             pass
-    #         else:
-    #             for x in bot.voice_clients:
-    #                 if (x.guild == message.guild):
-    #                     return await x.disconnect()
-    #     except:
-    #         await message.channel.send("Rügenwalder."+" "+str(message.author.mention))
-    # if "wer ist das" in str(message.content).lower():
-    #     try:
-    #         voice_channel = message.author.voice.channel
-    #         vc = await voice_channel.connect()
-    #         vc.play(discord.FFmpegPCMAudio(source='res/wer_ist_das.mp3'))
-    #         while vc.is_playing() == True:
-    #             pass
-    #         else:
-    #             for x in bot.voice_clients:
-    #                 if (x.guild == message.guild):
-    #                     return await x.disconnect()
-    #     except:
-    #         await message.channel.send("Wer ist das?"+" "+str(message.author.mention))
-    # if "achtarmiger" in str(message.content).lower():
-    #     try:
-    #         voice_channel = message.author.voice.channel
-    #         vc = await voice_channel.connect()
-    #         vc.play(discord.FFmpegPCMAudio(source='res/achtarmiger.mp3'))
-    #         while vc.is_playing() == True:
-    #             pass
-    #         else:
-    #             for x in bot.voice_clients:
-    #                 if (x.guild == message.guild):
-    #                     return await x.disconnect()
-    #     except:
-    #         await message.channel.send("@Gammanus macht Stulle."+" "+str(message.author.mention))
     await bot.process_commands(message)
 
 
