@@ -12,6 +12,8 @@ Discord Bot (obviously): https://discord.com/developers
 
 Reddit API: https://www.reddit.com/prefs/apps
 
+riot API: https://developer.riotgames.com/
+
 WHEN HOSTING LOCALLY:
 
 add API keys to example.env and rename to .env
@@ -28,5 +30,4 @@ use runtime.txt to choose a python interpreter
 add the following buildpacks:
 `heroku/python`
 `https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git`
-`https://github.com/kitcast/buildpack-ffmpeg.git`
 `https://github.com/xrisk/heroku-opus.git`
