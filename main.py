@@ -277,9 +277,7 @@ class Physik(commands.Cog):
         else:
             os.rename('test.mp3', 'res/'+str(name)+'.mp3')
 
-        # print(os.listdir())
-        # if os._exists('test.mp3'):
-        #     print("test")
+
         os.remove('test.mp3')
         await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
 
@@ -293,7 +291,7 @@ class Physik(commands.Cog):
         play = argument
         try:
             print(play)
-            await Labern(audiofile=play, message=ctx.message)
+            await Labern(audiofile=play, message=ctx.message.lower())
         except:
             await ctx.send("Spast" + " " + str(ctx.author.mention))
 
@@ -311,7 +309,7 @@ class Physik(commands.Cog):
         squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
 
         mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
-                       "Andrê": "Azzazzin"}
+                       "Andrê": "Azzazzin", "Borenz": "SuiZiDaL28"}
         for x in mongos_list.keys():
             y = mongos_list[x]
             data = Bruder(name=y)
