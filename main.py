@@ -170,7 +170,7 @@ def Last_10_games(name):
 async def Labern(audiofile, message):
    voice_channel = message.author.voice.channel
    vc = await voice_channel.connect()
-   vc.play(discord.FFmpegPCMAudio(source='res/{}.mp3'.format(audiofile)))
+   vc.play(discord.FFmpegPCMAudio(source='res/{}.mp3'.format(audiofile.lower())))
    while vc.is_playing() == True:
        pass
    else:
@@ -291,7 +291,7 @@ class Physik(commands.Cog):
         play = argument
         try:
             print(play)
-            await Labern(audiofile=play, message=ctx.message.lower())
+            await Labern(audiofile=play, message=ctx.message)
         except:
             await ctx.send("Spast" + " " + str(ctx.author.mention))
 
