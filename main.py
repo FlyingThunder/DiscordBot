@@ -361,14 +361,22 @@ class Magie(commands.Cog):
 async def on_ready():
     text_channel_list = []
     for guild in bot.guilds:
-        for channel in guild.channels:
-            if channel.category is not None:
-                if "Text Channels" in str(channel.category):
-                    text_channel_list.append(channel)
+        print(guild.id)
+        if guild.id == 262510619503230976: #Shitheads
+            for channel in guild.channels:
+                if channel.name == "general":
+                    await channel.send("Bin gelandet auf Aldebaran.")
+                print(channel)
+        if guild.id == 733248970771660822: #Bot Test
+            for channel in guild.channels:
+                if channel.name == "general":
+                    await channel.send("Bin gelandet auf Aldebaran.")
+
 
     print(f'{bot.user.name} has connected to {guild}')
     sys.stdout.flush()
-    await text_channel_list[0].send("Bin gelandet auf Aldebaran.")
+    #print(text_channel_list)
+    #await text_channel_list[0].send("Bin gelandet auf Aldebaran.")
 
 
 
