@@ -250,7 +250,7 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="Youtube -> mp3 download für Audiobefehl")
+    @commands.command(help="URL + Name + Startsekunde + Endsekunde")
     async def add_youtubeaudio(self, ctx, url, name=None, start=None, end=None):
         ydl_opts = {
             'outtmpl': 'test.mp3',
@@ -262,25 +262,25 @@ class Physik(commands.Cog):
             }],
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            try:
+                ydl.download([url])
 
+                if start is not None and end is not None:
+                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + str(start) +  str(end) + "]")
+                    #ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
+                    specs = str(start) + " " + str(end)
+                    ext.extract_clips(specs)
+                    os.rename('clip1.mp3', 'res/' + str(name).lower() + '.mp3')
+                    os.remove('test.mp3')
+                else:
+                    print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
+                    os.rename('test.mp3', 'res/' + str(name).lower() + '.mp3')
 
-        if start is not None and end is not None:
-            print(start,end)
-            #ext = AudioClipExtractor('test.mp3', ffmpegpath)
-            ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
-
-            specs = str(start) + " " + str(end)
-            ext.extract_clips(specs)
-            os.rename('clip1.mp3', 'res/' + str(name) + '.mp3')
-        else:
-            os.rename('test.mp3', 'res/'+str(name)+'.mp3')
-
-
-        os.remove('test.mp3')
-        await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
-
+                await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+            except Exception as e:
+                await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
 
     @commands.command(help="stats vong letzte 10 spiele her")
     async def Letzte10(self, ctx, argument):
