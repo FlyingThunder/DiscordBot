@@ -334,6 +334,13 @@ class Magie(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # @commands.command(help="löscht audiodatei")
+    # async def Löschung(self, ctx, name):
+    #     print(name)
+    #     print(os._exists("res/"+str(name)+".mp3"))
+    #     if ".mp3" in name:
+    #         os.remove("res/"+str(name)+".mp3")
+    #         await ctx.send(str(name) + " wurde gelöscht. Hurensohn.")
 
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
     @commands.has_permissions(administrator=True)
