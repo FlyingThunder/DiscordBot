@@ -64,12 +64,6 @@ def dropbox_download():
                 metadata, res = dbx.files_download(path="/DiscordBotMp3s/{}".format(y))
                 f.write(res.content)
 
-    files = os.listdir('res/mp3s/')
-    audiofiles = []
-    for x in files:
-        if ('.mp3' or '.wav') in str(x):
-            audiofiles.append(x)
-    print(audiofiles)
 
 def champLookup(champId):
     latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
@@ -217,6 +211,14 @@ async def Labern(audiofile, message):
 @commands.has_permissions(add_reactions=True,embed_links=True)
 async def Hilfe(ctx, *cog):
     # try:
+
+    files = os.listdir('res/mp3s/')
+    audiofiles = []
+    for x in files:
+        if ('.mp3' or '.wav') in str(x):
+            audiofiles.append(x)
+    print(audiofiles)
+
     if not cog:
         """Cog listing.  What more?"""
         halp=discord.Embed(title='Verfügbare Wege der Volksverhetzung:',
