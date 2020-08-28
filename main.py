@@ -27,7 +27,7 @@ watcher = LolWatcher(riot_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
-audiofiles = []
+
 
 #bot command präfix
 bot = commands.Bot(command_prefix='!',case_insensitive=True)
@@ -212,13 +212,6 @@ async def Labern(audiofile, message):
 async def Hilfe(ctx, *cog):
     # try:
 
-    files = os.listdir('res/mp3s/')
-    audiofiles = []
-    for x in files:
-        if ('.mp3' or '.wav') in str(x):
-            audiofiles.append(x)
-    print(audiofiles)
-
     if not cog:
         """Cog listing.  What more?"""
         halp=discord.Embed(title='Verfügbare Wege der Volksverhetzung:',
@@ -320,7 +313,17 @@ class Physik(commands.Cog):
     async def Letzte10(self, ctx, argument):
         await ctx.send('', embed=Last_10_games(name=argument))
 
-    @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen! \n" + str(audiofiles))
+    @commands.command(help="Zeigt alle mp3s an")
+    async def mp3s(self, ctx):
+        files = os.listdir('res/mp3s/')
+        audiofiles = []
+        for x in files:
+            if ('.mp3' or '.wav') in str(x):
+                audiofiles.append(x)
+        print(audiofiles)
+        await ctx.send(audiofiles)
+
+    @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
     async def Sag(self, ctx, argument):
         play = argument
         try:
