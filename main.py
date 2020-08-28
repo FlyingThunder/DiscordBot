@@ -36,29 +36,34 @@ ffmpegpath = "res/ffmpeg.exe"
 startTime = datetime.now()
 print(startTime)
 
-def dropbox_upload():
+def dropbox_upload(filename):
     audiofiles_dropbox = []
     dropbox_filescan = dbx.files_list_folder("/discordbotmp3s")
     for x in dropbox_filescan.entries:
         audiofiles_dropbox.append(x.name)
 
     mp3_files = os.listdir("res/mp3s/")
-    print(mp3_files)
-    for x in mp3_files:
-        if x not in audiofiles_dropbox:
+    #print(mp3_files)
+
+    x = str(filename) + ".mp3"
+
+    if x not in audiofiles_dropbox:
+        f = open('res/mp3s/{}'.format(x), 'rb')
+        print(f)
+        print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
+        dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+        return "upload"
+    else:
+        # print(os.path.getsize('res/mp3s/{}'.format(x)))
+        # print(dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size)
+        if os.path.getsize('res/mp3s/{}'.format(x)) != dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
+            print("Datei vorhanden, Metadaten nicht identisch. Überschreibe auf DropBox.")
             f = open('res/mp3s/{}'.format(x), 'rb')
-            print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
+            dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
-            return ("Upload")
+            return "overwrite"
         else:
-            print(os.path.getsize('res/mp3s/{}'.format(x)))
-            print(dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size)
-            if 'res/mp3s/{}'.format(x) is not dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
-                print("Datei vorhanden, Metadaten nicht identisch. Überschreibe auf DropBox.")
-                f = open('res/mp3s/{}'.format(x), 'rb')
-                dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
-                dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
-                return("Overwrite")
+            return("pass")
 
 def dropbox_download():
     audiofiles_dropbox = []
@@ -297,30 +302,38 @@ class Physik(commands.Cog):
             }],
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            try:
-                ydl.download([url])
+            #try:
+            ydl.download([url])
 
-                if start is not None and end is not None:
-                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + str(start) +  str(end) + "]")
-                    #ext = AudioClipExtractor('test.mp3', ffmpegpath)
-                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
+            if start is not None and end is not None:
+                print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + "" + str(start) + "" + str(end) + "]")
+                #ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
-                    specs = str(start) + " " + str(end)
-                    ext.extract_clips(specs)
-                    os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                    os.remove('test.mp3')
-                else:
-                    print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
-                    os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                specs = str(start) + " " + str(end)
+                ext.extract_clips(specs)
+                try:
+                    os.remove('res/mp3s/' + str(name).lower() + '.mp3')
+                except:
+                    pass
+                os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                os.remove('test.mp3')
+            else:
+                print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
+                os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
 
-                await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
-            except Exception as e:
-                await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
+            await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+            # except Exception as e:
+            #     await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
+        filestate = (dropbox_upload(name))
+        print(filestate)
+        if filestate == "pass":
+            await ctx.send("Datei existiert bereits")
+        elif filestate == "upload":
+            await ctx.send("Datei wurde nach DropBox hochgeladen")
+        elif filestate == "overwrite":
+            await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
 
-        if dropbox_upload() == "Upload":
-            await ctx.send("{} wurde in Dropbox hochgeladen".format(name))
-        if dropbox_upload() == "Overwrite":
-            await ctx.send("{} existiert bereits, Metadaten nicht identisch. Überschreibe in Dropbox".format(name))
 
     @commands.command(help="stats vong letzte 10 spiele her")
     async def Letzte10(self, ctx, argument):
@@ -412,6 +425,7 @@ async def on_ready():
             for channel in guild.channels:
                 if channel.name == "general":
                     await channel.send("Bin gelandet auf Aldebaran.")
+                    #pass
         if guild.id == 733248970771660822: #Bot Test
             for channel in guild.channels:
                 if channel.name == "general":
@@ -424,6 +438,7 @@ async def on_ready():
             for channel in guild.channels:
                 if channel.name == "general":
                     await channel.send("mp3 Dateien wurden von Dropbox runtergeladen.")
+                    #pass
         if guild.id == 733248970771660822: #Bot Test
             for channel in guild.channels:
                 if channel.name == "general":
