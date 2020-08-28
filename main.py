@@ -27,12 +27,7 @@ watcher = LolWatcher(riot_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
-files = os.listdir('res')
-audiofiles = []
-for x in files:
-    if ('.mp3' or '.wav') in str(x):
-        audiofiles.append(x)
-print(audiofiles)
+
 
 #bot command präfix
 bot = commands.Bot(command_prefix='!',case_insensitive=True)
@@ -68,6 +63,13 @@ def dropbox_download():
             with open("res/mp3s/{}".format(y), "wb") as f:
                 metadata, res = dbx.files_download(path="/DiscordBotMp3s/{}".format(y))
                 f.write(res.content)
+
+    files = os.listdir('res/mp3s/')
+    audiofiles = []
+    for x in files:
+        if ('.mp3' or '.wav') in str(x):
+            audiofiles.append(x)
+    print(audiofiles)
 
 def champLookup(champId):
     latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
