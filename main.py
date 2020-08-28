@@ -47,7 +47,18 @@ def dropbox_upload():
     for x in mp3_files:
         if x not in audiofiles_dropbox:
             f = open('res/mp3s/{}'.format(x), 'rb')
+            print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+            return ("Upload")
+        else:
+            print(os.path.getsize('res/mp3s/{}'.format(x)))
+            print(dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size)
+            if 'res/mp3s/{}'.format(x) is not dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
+                print("Datei vorhanden, Metadaten nicht identisch. Überschreibe auf DropBox.")
+                f = open('res/mp3s/{}'.format(x), 'rb')
+                dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
+                dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+                return("Overwrite")
 
 def dropbox_download():
     audiofiles_dropbox = []
@@ -306,8 +317,10 @@ class Physik(commands.Cog):
             except Exception as e:
                 await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
 
-        dropbox_upload()
-        await ctx.send("{} wurde in Dropbox hochgeladen".format(name))
+        if dropbox_upload() == "Upload":
+            await ctx.send("{} wurde in Dropbox hochgeladen".format(name))
+        if dropbox_upload() == "Overwrite":
+            await ctx.send("{} existiert bereits, Metadaten nicht identisch. Überschreibe in Dropbox".format(name))
 
     @commands.command(help="stats vong letzte 10 spiele her")
     async def Letzte10(self, ctx, argument):
@@ -321,7 +334,8 @@ class Physik(commands.Cog):
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
         print(audiofiles)
-        await ctx.send(audiofiles)
+        await ctx.send('', embed=audiofiles)
+
 
     @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
     async def Sag(self, ctx, argument):
@@ -371,13 +385,10 @@ class Magie(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # @commands.command(help="löscht audiodatei")
-    # async def Löschung(self, ctx, name):
-    #     print(name)
-    #     print(os._exists("res/mp3s/"+str(name)+".mp3"))
-    #     if ".mp3" in name:
-    #         os.remove("res/mp3s/"+str(name)+".mp3")
-    #         await ctx.send(str(name) + " wurde gelöscht. Hurensohn.")
+    @commands.command(help="löscht audiodatei")
+    async def Löschung(self, ctx, name):
+        dbx.files_delete_v2("/DiscordBotMp3s/{}".format(name))
+        await ctx.send("{} wurde gelöscht".format(name))
 
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
     @commands.has_permissions(administrator=True)
