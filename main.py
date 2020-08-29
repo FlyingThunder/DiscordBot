@@ -40,12 +40,12 @@ def dropbox_upload(filename):
     audiofiles_dropbox = []
     dropbox_filescan = dbx.files_list_folder("/discordbotmp3s")
     for x in dropbox_filescan.entries:
-        audiofiles_dropbox.append(x.name)
+        audiofiles_dropbox.append(x.name.lower())
 
     mp3_files = os.listdir("res/mp3s/")
     #print(mp3_files)
 
-    x = str(filename) + ".mp3"
+    x = str(filename).lower() + ".mp3"
 
     if x not in audiofiles_dropbox:
         f = open('res/mp3s/{}'.format(x), 'rb')
@@ -56,9 +56,9 @@ def dropbox_upload(filename):
     else:
         # print(os.path.getsize('res/mp3s/{}'.format(x)))
         # print(dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size)
-        if os.path.getsize('res/mp3s/{}'.format(x)) != dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
+        if os.path.getsize('res/mp3s/{}'.format(x.lower())) != dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
             print("Datei vorhanden, Metadaten nicht identisch. Überschreibe auf DropBox.")
-            f = open('res/mp3s/{}'.format(x), 'rb')
+            f = open('res/mp3s/{}'.format(x.lower()), 'rb')
             dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
             return "overwrite"
@@ -76,7 +76,7 @@ def dropbox_download():
 
     for y in audiofiles_dropbox:
         if y not in mp3_files:
-            with open("res/mp3s/{}".format(y), "wb") as f:
+            with open("res/mp3s/{}".format(y.lower()), "wb") as f:
                 metadata, res = dbx.files_download(path="/DiscordBotMp3s/{}".format(y))
                 f.write(res.content)
 
