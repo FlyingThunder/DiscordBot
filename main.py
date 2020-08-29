@@ -347,7 +347,7 @@ class Physik(commands.Cog):
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
         print(audiofiles)
-        await ctx.send('', embed=audiofiles)
+        await ctx.send('audiofiles')
 
 
     @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
