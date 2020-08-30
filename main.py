@@ -63,7 +63,11 @@ def dropbox_upload(filename):
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
             return "overwrite"
         else:
-            return("pass")
+            f = open('res/mp3s/{}'.format(x), 'rb')
+            print(f)
+            print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
+            dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+            return "upload_same"
 
 def dropbox_download():
     audiofiles_dropbox = []
@@ -327,8 +331,8 @@ class Physik(commands.Cog):
             #     await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
         filestate = (dropbox_upload(name))
         print(filestate)
-        if filestate == "pass":
-            await ctx.send("Datei existiert bereits")
+        if filestate == "upload_same":
+            await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
         elif filestate == "upload":
             await ctx.send("Datei wurde nach DropBox hochgeladen")
         elif filestate == "overwrite":
@@ -347,7 +351,7 @@ class Physik(commands.Cog):
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
         print(audiofiles)
-        await ctx.send('audiofiles')
+        await ctx.send(audiofiles)
 
 
     @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
