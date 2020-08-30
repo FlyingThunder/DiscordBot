@@ -48,7 +48,7 @@ def dropbox_upload(filename):
     x = str(filename).lower() + ".mp3"
 
     if x not in audiofiles_dropbox:
-        f = open('res/mp3s/{}'.format(x), 'rb')
+        f = open('res/mp3s/{}'.format(x.lower()), 'rb')
         print(f)
         print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
         dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
@@ -63,7 +63,10 @@ def dropbox_upload(filename):
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
             return "overwrite"
         else:
-            return("pass")
+            f = open('res/mp3s/{}'.format(x.lower()), 'rb')
+            dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
+            dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+            return "upload_same"
 
 def dropbox_download():
     audiofiles_dropbox = []
@@ -327,8 +330,8 @@ class Physik(commands.Cog):
             #     await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
         filestate = (dropbox_upload(name))
         print(filestate)
-        if filestate == "pass":
-            await ctx.send("Datei existiert bereits")
+        if filestate == "upload_same":
+            await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
         elif filestate == "upload":
             await ctx.send("Datei wurde nach DropBox hochgeladen")
         elif filestate == "overwrite":
@@ -347,7 +350,7 @@ class Physik(commands.Cog):
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
         print(audiofiles)
-        await ctx.send('audiofiles')
+        await ctx.send(audiofiles)
 
 
     @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
@@ -424,8 +427,8 @@ async def on_ready():
         if guild.id == 262510619503230976: #Shitheads
             for channel in guild.channels:
                 if channel.name == "general":
-                    await channel.send("Bin gelandet auf Aldebaran.")
-                    #pass
+                    #await channel.send("Bin gelandet auf Aldebaran.")
+                    pass
         if guild.id == 733248970771660822: #Bot Test
             for channel in guild.channels:
                 if channel.name == "general":
@@ -437,8 +440,8 @@ async def on_ready():
         if guild.id == 262510619503230976: #Shitheads
             for channel in guild.channels:
                 if channel.name == "general":
-                    await channel.send("mp3 Dateien wurden von Dropbox runtergeladen.")
-                    #pass
+                    #await channel.send("mp3 Dateien wurden von Dropbox runtergeladen.")
+                    pass
         if guild.id == 733248970771660822: #Bot Test
             for channel in guild.channels:
                 if channel.name == "general":
