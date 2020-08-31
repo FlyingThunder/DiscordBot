@@ -349,8 +349,8 @@ class Physik(commands.Cog):
         for x in files:
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
-        print(audiofiles)
-        await ctx.send(audiofiles)
+        print(sorted(audiofiles))
+        await ctx.send(sorted(audiofiles))
 
 
     @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
@@ -479,6 +479,8 @@ async def on_message(message):
     if "mama mia" in str(message.content).lower():
         await message.channel.send(file=discord.File('res/mamamia.png'))
     await bot.process_commands(message)
+    if "donger" in str(message.content).lower():
+        await message.channel.send("ヽ༼ຈل͜ຈ༽ﾉ")
 
 
 bot.add_cog(Physik(bot))
