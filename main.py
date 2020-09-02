@@ -229,8 +229,6 @@ async def Labern(audiofile, message):
 @bot.command(help="zeigt genau das hier an.")
 @commands.has_permissions(add_reactions=True,embed_links=True)
 async def Hilfe(ctx, *cog):
-    # try:
-
     if not cog:
         """Cog listing.  What more?"""
         halp=discord.Embed(title='Verfügbare Wege der Volksverhetzung:',
@@ -280,8 +278,7 @@ async def Hilfe(ctx, *cog):
                 await ctx.message.add_reaction(emoji='✉')
             halp.add_field(name='Voicechat Befehle:', value='"Wie viele", "Teewurst?", "Alarm", "Wer ist das"', inline=False)
             await ctx.message.channel.send('',embed=halp)
-    # except:
-    #     await ctx.send("Excuse me, I can't send embeds.")
+
 
 
 
