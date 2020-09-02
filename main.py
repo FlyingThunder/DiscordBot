@@ -404,7 +404,6 @@ class Magie(commands.Cog):
         await ctx.send("{} wurde gelöscht".format(name))
 
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
-    @commands.has_permissions(administrator=True)
     async def Genozid(self, ctx, limit: int):
         await ctx.channel.purge(limit=limit)
         await ctx.send('Cleared by {}'.format(ctx.author.mention))
