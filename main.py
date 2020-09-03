@@ -291,7 +291,7 @@ class Physik(commands.Cog):
         self.bot = bot
 
     @commands.command(help="URL + Name + Startsekunde + Endsekunde")
-    async def add_youtubeaudio(self, ctx, url, name=None, start=None, end=None):
+    async def add_youtubeaudio(self, url, ctx=None, name=None, start=None, end=None, temp=None):
         ydl_opts = {
             'outtmpl': 'test.mp3',
             'format': 'bestaudio/best',
@@ -302,37 +302,37 @@ class Physik(commands.Cog):
             }],
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            #try:
-            ydl.download([url])
+            try:
+                ydl.download([url])
+                if start and end:
+                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + "" + str(start) + "" + str(end) + "]")
+                    #ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
-            if start is not None and end is not None:
-                print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + "" + str(start) + "" + str(end) + "]")
-                #ext = AudioClipExtractor('test.mp3', ffmpegpath)
-                ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
-
-                specs = str(start) + " " + str(end)
-                ext.extract_clips(specs)
-                try:
-                    os.remove('res/mp3s/' + str(name).lower() + '.mp3')
-                except:
-                    pass
-                os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                os.remove('test.mp3')
-            else:
-                print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
-                os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-
-            await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
-            # except Exception as e:
-            #     await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
-        filestate = (dropbox_upload(name))
-        print(filestate)
-        if filestate == "upload_same":
-            await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
-        elif filestate == "upload":
-            await ctx.send("Datei wurde nach DropBox hochgeladen")
-        elif filestate == "overwrite":
-            await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
+                    specs = str(start) + " " + str(end)
+                    ext.extract_clips(specs)
+                    try:
+                        os.remove('res/mp3s/' + str(name).lower() + '.mp3')
+                    except:
+                        pass
+                    os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                    os.remove('test.mp3')
+                else:
+                    print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
+                    os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                if not temp:
+                    await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+            except Exception as e:
+                await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
+        if not temp:
+            filestate = (dropbox_upload(name))
+            print(filestate)
+            if filestate == "upload_same":
+                await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
+            elif filestate == "upload":
+                await ctx.send("Datei wurde nach DropBox hochgeladen")
+            elif filestate == "overwrite":
+                await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
 
 
     @commands.command(help="stats vong letzte 10 spiele her")
@@ -350,14 +350,42 @@ class Physik(commands.Cog):
         await ctx.send(sorted(audiofiles))
 
 
-    @commands.command(help="Dateinamen OHNE '.mp3' an den Befehl anhängen!")
-    async def Sag(self, ctx, argument):
-        play = argument
-        try:
-            print(play)
-            await Labern(audiofile=play, message=ctx.message)
-        except:
-            await ctx.send("Spast" + " " + str(ctx.author.mention))
+    @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
+    async def Sag(self, ctx, argument=None, start=None, end=None):
+        url = None
+        play = None
+        if "http" in argument:
+            url = argument
+        else:
+            play = argument
+        if play:
+            try:
+                print("Audiodatei wird abgespielt: " + play + "von: " + str(ctx.author))
+                await Labern(audiofile=play, message=ctx.message)
+            except Exception as e:
+                await ctx.send("Spast" + " " + ctx.author.mention)
+                print("Exception:" + str(e))
+        elif url:
+            if not start and not end:
+                await self.add_youtubeaudio(url=url, ctx=ctx, name="Temp_File", temp=True)
+                try:
+                    print("Audiodatei wird abgespielt: " + "Temp_File" + "von: " + str(ctx.author))
+                    await Labern(audiofile="Temp_File", message=ctx.message)
+                except Exception as e:
+                    await ctx.send("Spast" + " " + ctx.author.mention)
+                    print("Exception:" + str(e))
+                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
+            else:
+                await self.add_youtubeaudio(url=url, ctx=ctx, name="Temp_File", start=start, end=end, temp=True)
+                try:
+                    print("Audiodatei wird abgespielt: " + "Temp_File" + "von: " + str(ctx.author))
+                    await Labern(audiofile="Temp_File", message=ctx.message)
+                except Exception as e:
+                    await ctx.send("Spast" + " " + ctx.author.mention)
+                    print("Exception:" + str(e))
+                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(start) + " / " + str(end) +  " von: " + str(ctx.author))
+            os.remove('res/mp3s/Temp_File.mp3')
+
 
     @commands.command(help="URL der Audiodatei (mp3) anhängen + Name des Outputs")
     async def add_audiofile(self, ctx, link, name=None):
@@ -399,8 +427,13 @@ class Magie(commands.Cog):
         self.bot = bot
 
     @commands.command(help="löscht audiodatei")
-    async def Löschung(self, ctx, name):
-        dbx.files_delete_v2("/DiscordBotMp3s/{}".format(name))
+    async def Delete(self, ctx, name):
+        try:
+            os.remove('res/mp3s/{}.mp3'.format(name))
+            print(str(name) + " wurde vom lokalen System gelöscht")
+        except Exception as e:
+            print(e)
+        dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(name))
         await ctx.send("{} wurde gelöscht".format(name))
 
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
@@ -408,7 +441,6 @@ class Magie(commands.Cog):
         await ctx.channel.purge(limit=limit)
         await ctx.send('Cleared by {}'.format(ctx.author.mention))
         await ctx.message.delete()
-
 
     @commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
     async def Aufzeit(self, ctx):
