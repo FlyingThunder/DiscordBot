@@ -99,22 +99,22 @@ def Mainbot():
     post = reddit.subreddit('okbrudimongo').random()
     x = post.id
 
-    with open('res/data.json', 'r') as e:
+    with open('res/reddit_posts.json', 'r') as e:
         eread = e.read()
         if x not in eread:
-            with open('res/data.json', 'a') as f:
+            with open('res/reddit_posts.json', 'a') as f:
                 json.dump(x, f)
                 f.close()
         else:
             e.close()
     print(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-    file = open("res/data.json", "r+")
+    file = open("res/reddit_posts.json", "r+")
     readfile = file.read()
     print(readfile.count('"'))
     if readfile.count('"')>100:
         file.truncate(0)
-        print("data.json cleared")
+        print("reddit_posts.json cleared")
     file.close()
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
@@ -276,7 +276,6 @@ async def Hilfe(ctx, *cog):
                 halp = discord.Embed(title='Error!',description='How do you even use "'+cog[0]+'"?',color=discord.Color.red())
             else:
                 await ctx.message.add_reaction(emoji='✉')
-            halp.add_field(name='Voicechat Befehle:', value='"Wie viele", "Teewurst?", "Alarm", "Wer ist das"', inline=False)
             await ctx.message.channel.send('',embed=halp)
 
 
@@ -289,6 +288,167 @@ class Physik(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(help="stats vong letzte 10 spiele her")
+    async def Letzte10(self, ctx, argument):
+        await ctx.send('', embed=Last_10_games(name=argument))
+
+    @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
+    async def Sag(self, ctx, argument=None, start=None, end=None):
+        url = None
+        play = None
+        if "http" in argument:
+            url = argument
+        else:
+            play = argument
+        if play:
+            try:
+                audiostat_list = []
+                await Labern(audiofile=play, message=ctx.message)
+                with open('res/mp3s_stats.txt', 'r') as e:
+                    try:
+                        content = json.load(e)
+                        for x in content:
+                            audiostat_list.append(x)
+                        e.close()
+                    except:
+                        print("Datei ist noch leer")
+
+                data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
+                #data = 'Audiofile ({}) wurde am ({}) von ({}) abgespielt'.format(play, datetime.now(), str(ctx.author))
+                audiostat_list.append(data)
+                print(data)
+                with open('res/mp3s_stats.txt', 'w', encoding='utf8') as f:
+                    json.dump(audiostat_list, f, ensure_ascii=False)
+                    f.close()
+
+                with open('res/mp3s_stats.txt', 'rb') as g:
+                    try:
+                        dbx.files_delete_v2("/mp3s_stats.txt")
+                    except:
+                        pass
+                    dbx.files_upload(g.read(), "/mp3s_stats.txt")
+                    g.close()
+
+            except Exception as e:
+                #await ctx.send("Spast" + " " + ctx.author.mention)
+                print("Exception:" + str(e))
+
+        elif url:
+            if not start and not end:
+                await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
+                try:
+                    print("Audiodatei wird abgespielt: " + "Temp_File" + "von: " + str(ctx.author))
+                    await Labern(audiofile="Temp_File", message=ctx.message)
+                except Exception as e:
+                    await ctx.send("Spast" + " " + ctx.author.mention)
+                    print("Exception:" + str(e))
+                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
+            else:
+                await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=start, end=end, temp=True)
+                try:
+                    print("Audiodatei wird abgespielt: " + "Temp_File" + "von: " + str(ctx.author))
+                    await Labern(audiofile="Temp_File", message=ctx.message)
+                except Exception as e:
+                    await ctx.send("Spast" + " " + ctx.author.mention)
+                    print("Exception:" + str(e))
+                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(start) + " / " + str(end) +  " von: " + str(ctx.author))
+            os.remove('res/mp3s/Temp_File.mp3')
+
+    @commands.command(help="SEID IHR BEREIT KINDER?")
+    async def Squad(self, ctx):
+        squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
+
+        mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
+                       "Andrê": "Azzazzin", "Borenz": "SuiZiDaL28"}
+        for x in mongos_list.keys():
+            y = mongos_list[x]
+            data = Bruder(name=y)
+            print(data)
+            if data[1] == "Ingame":
+                playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
+            else:
+                playerinfo = "ist nicht ingame"
+            squad_info.add_field(name=str(x), value=playerinfo, inline=False)
+
+
+        await ctx.send('', embed=squad_info)
+
+    @commands.command(help="keckige witze")
+    async def Wissen(self, ctx):
+        await ctx.send(Mainbot())
+
+class Magie(commands.Cog):
+    """
+    Weniger sinnlos, trotzdem Scheiße
+    """
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(help="mp3 Statistiken")
+    async def mp3stats(self, ctx, raw=None):
+        mp3_list = []
+        mp3stat_embed = discord.Embed(title='Audiostatistik')
+        with open('res/mp3s_stats.txt', 'r') as f:
+            data = json.load(f)
+
+        for x in data:
+            #print(x['Audiofile'])
+            mp3_list.append(x)
+
+        from collections import Counter
+
+        res = Counter([x['Audiofile'] for x in mp3_list])
+        #print(dict(res))
+
+        for y in res:
+            mp3stat_embed.add_field(name=y, value=res[y])
+
+        await ctx.send('', embed=mp3stat_embed)
+
+
+
+
+    @commands.command(help="Zeigt alle mp3s an")
+    async def mp3s(self, ctx):
+        files = os.listdir('res/mp3s/')
+        audiofiles = []
+        for x in files:
+            if ('.mp3' or '.wav') in str(x):
+                audiofiles.append(x)
+        print(sorted(audiofiles))
+        await ctx.send(sorted(audiofiles))
+
+    @commands.command(help="löscht audiodatei")
+    async def Delete(self, ctx, name):
+        try:
+            os.remove('res/mp3s/{}.mp3'.format(name))
+            print(str(name) + " wurde vom lokalen System gelöscht")
+        except Exception as e:
+            print(e)
+        dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(name))
+        await ctx.send("{} wurde gelöscht".format(name))
+
+    @commands.command(help="löscht letzte x Nachrichten im Kanal")
+    async def Genozid(self, ctx, limit: int):
+        await ctx.channel.purge(limit=limit)
+        await ctx.send('Cleared by {}'.format(ctx.author.mention))
+        await ctx.message.delete()
+
+    @commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
+    async def Aufzeit(self, ctx):
+        endTime = datetime.now()
+        print(endTime)
+        await ctx.send('Ich bin schon {} stationiert'.format(endTime - startTime))
+
+    @commands.command(help="URL der Audiodatei (mp3) anhängen + Name des Outputs")
+    async def add_audiofile(self, ctx, link, name=None):
+        print(link)
+        if name == None:
+            urllib.request.urlretrieve(link, "res/mp3s/"+str(link.split("/")[-1]))
+        else:
+            urllib.request.urlretrieve(link, "res/mp3s/" + str(name) + ".mp3")
+        await ctx.send("Audiodatei " + str(link.split("/")[-1]) + " hinzugefügt")
 
     @commands.command(help="URL + Name + Startsekunde + Endsekunde")
     async def add_youtubeaudio(self, url, ctx=None, name=None, start=None, end=None, temp=None):
@@ -334,121 +494,6 @@ class Physik(commands.Cog):
             elif filestate == "overwrite":
                 await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
 
-
-    @commands.command(help="stats vong letzte 10 spiele her")
-    async def Letzte10(self, ctx, argument):
-        await ctx.send('', embed=Last_10_games(name=argument))
-
-    @commands.command(help="Zeigt alle mp3s an")
-    async def mp3s(self, ctx):
-        files = os.listdir('res/mp3s/')
-        audiofiles = []
-        for x in files:
-            if ('.mp3' or '.wav') in str(x):
-                audiofiles.append(x)
-        print(sorted(audiofiles))
-        await ctx.send(sorted(audiofiles))
-
-
-    @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
-    async def Sag(self, ctx, argument=None, start=None, end=None):
-        url = None
-        play = None
-        if "http" in argument:
-            url = argument
-        else:
-            play = argument
-        if play:
-            try:
-                print("Audiodatei wird abgespielt: " + play + "von: " + str(ctx.author))
-                await Labern(audiofile=play, message=ctx.message)
-            except Exception as e:
-                await ctx.send("Spast" + " " + ctx.author.mention)
-                print("Exception:" + str(e))
-        elif url:
-            if not start and not end:
-                await self.add_youtubeaudio(url=url, ctx=ctx, name="Temp_File", temp=True)
-                try:
-                    print("Audiodatei wird abgespielt: " + "Temp_File" + "von: " + str(ctx.author))
-                    await Labern(audiofile="Temp_File", message=ctx.message)
-                except Exception as e:
-                    await ctx.send("Spast" + " " + ctx.author.mention)
-                    print("Exception:" + str(e))
-                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
-            else:
-                await self.add_youtubeaudio(url=url, ctx=ctx, name="Temp_File", start=start, end=end, temp=True)
-                try:
-                    print("Audiodatei wird abgespielt: " + "Temp_File" + "von: " + str(ctx.author))
-                    await Labern(audiofile="Temp_File", message=ctx.message)
-                except Exception as e:
-                    await ctx.send("Spast" + " " + ctx.author.mention)
-                    print("Exception:" + str(e))
-                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(start) + " / " + str(end) +  " von: " + str(ctx.author))
-            os.remove('res/mp3s/Temp_File.mp3')
-
-
-    @commands.command(help="URL der Audiodatei (mp3) anhängen + Name des Outputs")
-    async def add_audiofile(self, ctx, link, name=None):
-        print(link)
-        if name == None:
-            urllib.request.urlretrieve(link, "res/mp3s/"+str(link.split("/")[-1]))
-        else:
-            urllib.request.urlretrieve(link, "res/mp3s/" + str(name) + ".mp3")
-        await ctx.send("Audiodatei " + str(link.split("/")[-1]) + " hinzugefügt")
-
-    @commands.command(help="SEID IHR BEREIT KINDER?")
-    async def Squad(self, ctx):
-        squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
-
-        mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
-                       "Andrê": "Azzazzin", "Borenz": "SuiZiDaL28"}
-        for x in mongos_list.keys():
-            y = mongos_list[x]
-            data = Bruder(name=y)
-            print(data)
-            if data[1] == "Ingame":
-                playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
-            else:
-                playerinfo = "ist nicht ingame"
-            squad_info.add_field(name=str(x), value=playerinfo, inline=False)
-
-
-        await ctx.send('', embed=squad_info)
-
-    @commands.command(help="keckige witze")
-    async def Wissen(self, ctx):
-        await ctx.send(Mainbot())
-
-class Magie(commands.Cog):
-    """
-    Weniger sinnlos, trotzdem Scheiße
-    """
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command(help="löscht audiodatei")
-    async def Delete(self, ctx, name):
-        try:
-            os.remove('res/mp3s/{}.mp3'.format(name))
-            print(str(name) + " wurde vom lokalen System gelöscht")
-        except Exception as e:
-            print(e)
-        dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(name))
-        await ctx.send("{} wurde gelöscht".format(name))
-
-    @commands.command(help="löscht letzte x Nachrichten im Kanal")
-    async def Genozid(self, ctx, limit: int):
-        await ctx.channel.purge(limit=limit)
-        await ctx.send('Cleared by {}'.format(ctx.author.mention))
-        await ctx.message.delete()
-
-    @commands.command(help="Zeigt Deutsche Arbeitszeit des Doktors")
-    async def Aufzeit(self, ctx):
-        endTime = datetime.now()
-        print(endTime)
-        await ctx.send('Ich bin schon {} stationiert'.format(endTime - startTime))
-
-
 @bot.event
 async def on_ready():
     for guild in bot.guilds:
@@ -477,28 +522,20 @@ async def on_ready():
 
     print(f'{bot.user.name} has connected to {guild}')
     sys.stdout.flush()
-
-
-
-
-# @bot.command()
-# async def join(ctx):
-#         channel = ctx.message.author.voice.channel
-#         await channel.connect()
-#         return channel.connect()
+    try:
+        with open("res/mp3s_stats.txt", "wb") as h:
+            metadata, res = dbx.files_download(path="/mp3s_stats.txt")
+            h.write(res.content)
+            h.close()
+        print("mp3s_stats.txt runtergeladen")
+    except:
+        print("Datei existiert in DropBox nicht")
 
 @bot.command()
 async def leave(ctx):
-        print(bot.voice_clients)
         for x in bot.voice_clients:
             if(x.guild == ctx.message.guild):
-                return await x.disconnect()
-
-
-# @bot.event
-# async def on_command_error(ctx, error):
-#     if isinstance(error, commands.errors.CheckFailure):
-#         await ctx.send('You do not have the correct role for this command.')
+                await x.disconnect()
 
 @bot.event
 async def on_message(message):
