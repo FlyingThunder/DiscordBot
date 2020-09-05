@@ -356,7 +356,7 @@ class Physik(commands.Cog):
                         await Labern(audiofile=play, message=ctx.message, volume=None)
 
                     if os.path.exists('res/mp3s/{}.mp3'.format(play)):
-                        with open('res/mp3s_stats.txt', 'r') as e:
+                        with open('res/mp3s_stats.txt', 'r', encoding="utf-8") as e:
                             try:
                                 content = json.load(e)
                                 for x in content:
@@ -367,10 +367,10 @@ class Physik(commands.Cog):
                         data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
                         audiostat_list.append(data)
                         print(data)
-                        with open('res/mp3s_stats.txt', 'w') as f:
+                        with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
                             json.dump(audiostat_list, f, ensure_ascii=False)
                             f.close()
-                        with open('res/mp3s_stats.txt', 'rb') as g:
+                        with open('res/mp3s_stats.txt', 'rb', encoding="utf-8") as g:
                             try:
                                 dbx.files_delete_v2("/mp3s_stats.txt")
                             except:
@@ -455,7 +455,7 @@ class Magie(commands.Cog):
     async def mp3stats(self, ctx, raw=None):
         mp3_list = []
         #mp3stat_embed = discord.Embed(title='Audiostatistik')
-        with open('res/mp3s_stats.txt', 'r') as f:
+        with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         for x in data:
@@ -600,7 +600,7 @@ async def on_ready():
     print(f'{bot.user.name} has connected to {guild}')
     sys.stdout.flush()
     try:
-        with open("res/mp3s_stats.txt", "wb") as h:
+        with open("res/mp3s_stats.txt", "wb", encoding="utf-8") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
             h.close()
@@ -615,9 +615,21 @@ async def leave(ctx):
                 await x.disconnect()
 
 @bot.command()
+async def uploadMP3stats():
+    with open('res/mp3s_stats.txt', 'rb', encoding="utf-8") as g:
+        try:
+            dbx.files_delete_v2("/mp3s_stats.txt")
+        except:
+            pass
+        dbx.files_upload(g.read(), "/mp3s_stats.txt")
+        print("MP3stats auf Dropbox hochgeladen")
+        g.close()
+
+
+@bot.command()
 async def downloadMP3stats():
     try:
-        with open("res/mp3s_stats.txt", "wb") as h:
+        with open("res/mp3s_stats.txt", "wb", encoding="utf-8") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
             h.close()
