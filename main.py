@@ -9,6 +9,7 @@ from datetime import datetime
 from riotwatcher import LolWatcher, ApiError
 import urllib.request
 import youtube_dl
+import youtube_dlc
 from audioclipextractor import AudioClipExtractor, SpecsParser
 import dropbox
 from collections import Counter
@@ -224,16 +225,40 @@ def Last_10_games(name):
 
     return(letzte10embed)
 
-async def Labern(audiofile, message):
-   voice_channel = message.author.voice.channel
-   vc = await voice_channel.connect()
-   vc.play(discord.FFmpegPCMAudio(source='res/mp3s/{}.mp3'.format(audiofile.lower())))
-   while vc.is_playing() == True:
-       pass
-   else:
-       for x in bot.voice_clients:
-           if (x.guild == message.guild):
-               await x.disconnect()
+async def Labern(message, audiofile, volume):
+    if volume is None:
+        voice_channel = message.author.voice.channel
+        vc = await voice_channel.connect()
+        #vc.play(discord.PCMVolumeTransformer('res/mp3s/{}.mp3'.format(audiofile.lower()),volume=volume))
+        vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
+        while vc.is_playing() == True:
+            pass
+        else:
+            for x in bot.voice_clients:
+                if (x.guild == message.guild):
+                    await x.disconnect()
+
+    else:
+        voice_channel = message.author.voice.channel
+        vc = await voice_channel.connect()
+        #vc.play(discord.PCMVolumeTransformer('res/mp3s/{}.mp3'.format(audiofile.lower()),volume=volume))
+        vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
+        vc.source = discord.PCMVolumeTransformer(vc.source)
+        vc.source.volume = float(volume)
+        print(volume)
+        while vc.is_playing() == True:
+            pass
+        else:
+            for x in bot.voice_clients:
+                if (x.guild == message.guild):
+                    await x.disconnect()
+
+    while vc.is_playing() == True:
+        pass
+    else:
+        for x in bot.voice_clients:
+            if (x.guild == message.guild):
+                await x.disconnect()
 
 
 # @bot.command(name="testname", help="testdescription")
@@ -309,67 +334,92 @@ class Physik(commands.Cog):
         await ctx.send('', embed=Last_10_games(name=argument))
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
-    async def Sag(self, ctx, argument=None, start=None, end=None):
+    async def Sag(self, ctx, argument=None, *args):
+
         url = None
         play = None
-        if "http" in argument:
-            url = argument
-        else:
-            play = argument
-        if play:
-            try:
-                audiostat_list = []
-                await Labern(audiofile=play, message=ctx.message)
-                if os.path.exists('res/mp3s/{}.mp3'.format(play)):
-                    with open('res/mp3s_stats.txt', 'r') as e:
-                        try:
-                            content = json.load(e)
-                            for x in content:
-                                audiostat_list.append(x)
-                            e.close()
-                        except:
-                            print("Datei ist noch leer")
-
-                    data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
-                    #data = 'Audiofile ({}) wurde am ({}) von ({}) abgespielt'.format(play, datetime.now(), str(ctx.author))
-                    audiostat_list.append(data)
-                    print(data)
-                    with open('res/mp3s_stats.txt', 'w') as f:
-                        json.dump(audiostat_list, f, ensure_ascii=False)
-                        f.close()
-
-                    with open('res/mp3s_stats.txt', 'rb') as g:
-                        try:
-                            dbx.files_delete_v2("/mp3s_stats.txt")
-                        except:
-                            pass
-                        dbx.files_upload(g.read(), "/mp3s_stats.txt")
-                        g.close()
-
-            except Exception as e:
-                #await ctx.send("Spast" + " " + ctx.author.mention)
-                print("Exception:" + str(e))
-
-        elif url:
-            if not start and not end:
-                await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
-                try:
-                    print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
-                    await Labern(audiofile="Temp_File", message=ctx.message)
-                except Exception as e:
-                    await ctx.send("Spast" + " " + ctx.author.mention)
-                    print("Exception:" + str(e))
-                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
+        if argument:
+            if "http" in argument:
+                url = argument
             else:
-                await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=start, end=end, temp=True)
+                play = argument
+
+
+            if play:
                 try:
-                    print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
-                    await Labern(audiofile="Temp_File", message=ctx.message)
+                    audiostat_list = []
+                    if len(args) > 1:
+                        await ctx.send("1.0 = 100% Lautstärke, SONST BLEIBT ALLES SO WIE ES IST HIER!")
+                    elif len(args) == 1:
+                        await Labern(audiofile=play, message=ctx.message, volume=args[0])
+                    else:
+                        await Labern(audiofile=play, message=ctx.message, volume=None)
+
+                    if os.path.exists('res/mp3s/{}.mp3'.format(play)):
+                        with open('res/mp3s_stats.txt', 'r') as e:
+                            try:
+                                content = json.load(e)
+                                for x in content:
+                                    audiostat_list.append(x)
+                                e.close()
+                            except:
+                                print("Datei ist noch leer")
+                        data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
+                        audiostat_list.append(data)
+                        print(data)
+                        with open('res/mp3s_stats.txt', 'w') as f:
+                            json.dump(audiostat_list, f, ensure_ascii=False)
+                            f.close()
+                        with open('res/mp3s_stats.txt', 'rb') as g:
+                            try:
+                                dbx.files_delete_v2("/mp3s_stats.txt")
+                            except:
+                                pass
+                            dbx.files_upload(g.read(), "/mp3s_stats.txt")
+                            g.close()
                 except Exception as e:
-                    await ctx.send("Spast" + " " + ctx.author.mention)
                     print("Exception:" + str(e))
-                print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(start) + " / " + str(end) +  " von: " + str(ctx.author))
-            os.remove('res/mp3s/Temp_File.mp3')
+
+            elif url:
+                if len(args) == 0: #ganzes video, ohne volume
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
+                    try:
+                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        await Labern(audiofile="Temp_File", message=ctx.message, volume=None)
+                    except Exception as e:
+                        await ctx.send("Spast" + " " + ctx.author.mention)
+                        print("Exception:" + str(e))
+                    print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
+                if len(args) == 1: #ganzes video, mit volume
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
+                    try:
+                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        await Labern(audiofile="Temp_File", message=ctx.message, volume=args[0])
+                    except Exception as e:
+                        await ctx.send("Spast" + " " + ctx.author.mention)
+                        print("Exception:" + str(e))
+                    print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
+                elif len(args) == 2: #start + end
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=args[0], end=args[1], temp=True)
+                    try:
+                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        await Labern(audiofile="Temp_File", message=ctx.message, volume=None)
+                    except Exception as e:
+                        await ctx.send("Spast" + " " + ctx.author.mention)
+                        print("Exception:" + str(e))
+                    print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(args[0]) + " / " + str(args[1]) +  " von: " + str(ctx.author))
+                elif len(args) == 3: #start+end+volume
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=args[0], end=args[1], temp=True)
+                    try:
+                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        await Labern(audiofile="Temp_File", message=ctx.message, volume=args[2])
+                    except Exception as e:
+                        await ctx.send("Spast" + " " + ctx.author.mention)
+                        print("Exception:" + str(e))
+                    print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(args[0]) + " / " + str(args[1]) +  " von: " + str(ctx.author))
+                os.remove('res/mp3s/Temp_File.mp3')
+        else:
+            await ctx.send("Dumm oder was?")
 
     @commands.command(help="SEID IHR BEREIT KINDER?")
     async def Squad(self, ctx):
@@ -404,7 +454,7 @@ class Magie(commands.Cog):
     @commands.command(help="mp3 Statistiken")
     async def mp3stats(self, ctx, raw=None):
         mp3_list = []
-        mp3stat_embed = discord.Embed(title='Audiostatistik')
+        #mp3stat_embed = discord.Embed(title='Audiostatistik')
         with open('res/mp3s_stats.txt', 'r') as f:
             data = json.load(f)
 
@@ -415,14 +465,21 @@ class Magie(commands.Cog):
 
 
         res = Counter([x['Audiofile'] for x in mp3_list])
-        print(res)
-        #await ctx.send(res)
 
+        z = dict(res)
 
-        for y in res:
-            mp3stat_embed.add_field(name=y, value=res[y])
+        sortedRes = ({k: v for k, v in sorted(z.items(), key=lambda item: item[1], reverse=True)})
+        print(sortedRes)
+        teststring = ""
+        for y in sortedRes:
+            teststring+="{} : {} \\|\\|\\| ".format(y,sortedRes[y])
+            #await ctx.send("{} : {}".format(y,res[y]))
+            #mp3stat_embed.add_field(name=y, value=res[y])
 
-        await ctx.send('', embed=mp3stat_embed)
+        print(teststring)
+        await ctx.send(teststring)
+
+        #await ctx.send('', embed=mp3stat_embed)
 
 
 
@@ -485,7 +542,7 @@ class Magie(commands.Cog):
             try:
                 ydl.download([url])
                 if start and end:
-                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + "" + str(start) + "" + str(end) + "]")
+                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
                     #ext = AudioClipExtractor('test.mp3', ffmpegpath)
                     ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
@@ -556,6 +613,17 @@ async def leave(ctx):
         for x in bot.voice_clients:
             if(x.guild == ctx.message.guild):
                 await x.disconnect()
+
+@bot.command()
+async def downloadMP3stats():
+    try:
+        with open("res/mp3s_stats.txt", "wb") as h:
+            metadata, res = dbx.files_download(path="/mp3s_stats.txt")
+            h.write(res.content)
+            h.close()
+        print("mp3s_stats.txt runtergeladen")
+    except:
+        print("Datei existiert in DropBox nicht")
 
 @bot.event
 async def on_message(message):
