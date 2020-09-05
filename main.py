@@ -455,7 +455,7 @@ class Magie(commands.Cog):
     async def mp3stats(self, ctx, raw=None):
         mp3_list = []
         #mp3stat_embed = discord.Embed(title='Audiostatistik')
-        with open('res/mp3s_stats.txt', 'r') as f:
+        with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         for x in data:
