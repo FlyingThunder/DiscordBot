@@ -538,7 +538,7 @@ class Magie(commands.Cog):
                 'preferredquality': '192',
             }],
         }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with youtube_dlc.YoutubeDL(ydl_opts) as ydl:
             try:
                 ydl.download([url])
                 if start and end:
