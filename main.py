@@ -370,7 +370,7 @@ class Physik(commands.Cog):
                         with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
                             json.dump(audiostat_list, f, ensure_ascii=False)
                             f.close()
-                        with open('res/mp3s_stats.txt', 'rb', encoding="utf-8") as g:
+                        with open('res/mp3s_stats.txt', 'rb') as g:
                             try:
                                 dbx.files_delete_v2("/mp3s_stats.txt")
                             except:
@@ -599,15 +599,14 @@ async def on_ready():
 
     print(f'{bot.user.name} has connected to {guild}')
     sys.stdout.flush()
-    #try:
-    if 1==1:
-        with open("res/mp3s_stats.txt", "wb", encoding="utf-8") as h:
+    try:
+        with open("res/mp3s_stats.txt", "wb") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
             h.close()
         print("mp3s_stats.txt runtergeladen")
-    #except:
-    #    print("Datei existiert in DropBox nicht")
+    except:
+        print("Datei existiert in DropBox nicht")
 
 @bot.command()
 async def leave(ctx):
@@ -617,7 +616,7 @@ async def leave(ctx):
 
 @bot.command()
 async def uploadMP3stats():
-    with open('res/mp3s_stats.txt', 'rb', encoding="utf-8") as g:
+    with open('res/mp3s_stats.txt', 'rb') as g:
         try:
             dbx.files_delete_v2("/mp3s_stats.txt")
         except:
@@ -630,7 +629,7 @@ async def uploadMP3stats():
 @bot.command()
 async def downloadMP3stats():
     try:
-        with open("res/mp3s_stats.txt", "wb", encoding="utf-8") as h:
+        with open("res/mp3s_stats.txt", "wb") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
             h.close()
