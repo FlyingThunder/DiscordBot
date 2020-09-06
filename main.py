@@ -599,14 +599,15 @@ async def on_ready():
 
     print(f'{bot.user.name} has connected to {guild}')
     sys.stdout.flush()
-    try:
+    #try:
+    if 1==1:
         with open("res/mp3s_stats.txt", "wb", encoding="utf-8") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
             h.close()
         print("mp3s_stats.txt runtergeladen")
-    except:
-        print("Datei existiert in DropBox nicht")
+    #except:
+    #    print("Datei existiert in DropBox nicht")
 
 @bot.command()
 async def leave(ctx):
