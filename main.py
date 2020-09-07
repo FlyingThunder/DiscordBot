@@ -226,10 +226,10 @@ def Last_10_games(name):
     return(letzte10embed)
 
 async def Labern(message, audiofile, volume):
+    #if os.path.exists("res/mp3s/{}.mp3".format(audiofile)):
     if volume is None:
         voice_channel = message.author.voice.channel
         vc = await voice_channel.connect()
-        #vc.play(discord.PCMVolumeTransformer('res/mp3s/{}.mp3'.format(audiofile.lower()),volume=volume))
         vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
         while vc.is_playing() == True:
             pass
@@ -241,7 +241,6 @@ async def Labern(message, audiofile, volume):
     else:
         voice_channel = message.author.voice.channel
         vc = await voice_channel.connect()
-        #vc.play(discord.PCMVolumeTransformer('res/mp3s/{}.mp3'.format(audiofile.lower()),volume=volume))
         vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
         vc.source = discord.PCMVolumeTransformer(vc.source)
         vc.source.volume = float(volume)
@@ -259,6 +258,8 @@ async def Labern(message, audiofile, volume):
         for x in bot.voice_clients:
             if (x.guild == message.guild):
                 await x.disconnect()
+    #else:
+    #    return("Exception: File not found")
 
 
 # @bot.command(name="testname", help="testdescription")
@@ -335,7 +336,6 @@ class Physik(commands.Cog):
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
     async def Sag(self, ctx, argument=None, *args):
-
         url = None
         play = None
         if argument:
@@ -344,41 +344,45 @@ class Physik(commands.Cog):
             else:
                 play = argument
 
+            os.path.getsize('res/mp3s/{}.mp3'.format(argument.lower()))
+
 
             if play:
-                try:
-                    audiostat_list = []
-                    if len(args) > 1:
-                        await ctx.send("1.0 = 100% Lautstärke, SONST BLEIBT ALLES SO WIE ES IST HIER!")
-                    elif len(args) == 1:
-                        await Labern(audiofile=play, message=ctx.message, volume=args[0])
-                    else:
-                        await Labern(audiofile=play, message=ctx.message, volume=None)
+                #try:
+                audiostat_list = []
+                if len(args) > 1:
+                    await ctx.send("Guck mal !mp3s und überleg ob du behindert bist")
+                    return
+                elif len(args) == 1:
+                    await Labern(audiofile=play, message=ctx.message, volume=args[0])
+                else:
+                    await Labern(audiofile=play, message=ctx.message, volume=None)
 
-                    if os.path.exists('res/mp3s/{}.mp3'.format(play)):
-                        with open('res/mp3s_stats.txt', 'r', encoding="utf-8") as e:
-                            try:
-                                content = json.load(e)
-                                for x in content:
-                                    audiostat_list.append(x)
-                                e.close()
-                            except:
-                                print("Datei ist noch leer")
-                        data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
-                        audiostat_list.append(data)
-                        print(data)
-                        with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
-                            json.dump(audiostat_list, f, ensure_ascii=False)
-                            f.close()
-                        with open('res/mp3s_stats.txt', 'rb') as g:
-                            try:
-                                dbx.files_delete_v2("/mp3s_stats.txt")
-                            except:
-                                pass
-                            dbx.files_upload(g.read(), "/mp3s_stats.txt")
-                            g.close()
-                except Exception as e:
-                    print("Exception:" + str(e))
+                if os.path.exists('res/mp3s/{}.mp3'.format(play)):
+                    with open('res/mp3s_stats.txt', 'r', encoding="utf-8") as e:
+                        try:
+                            content = json.load(e)
+                            for x in content:
+                                audiostat_list.append(x)
+                            e.close()
+                        except:
+                            print("Datei ist noch leer")
+                    data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
+                    audiostat_list.append(data)
+                    print(data)
+                    with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
+                        json.dump(audiostat_list, f, ensure_ascii=False)
+                        f.close()
+                    with open('res/mp3s_stats.txt', 'rb') as g:
+                        try:
+                            dbx.files_delete_v2("/mp3s_stats.txt")
+                        except:
+                            pass
+                        dbx.files_upload(g.read(), "/mp3s_stats.txt")
+                        g.close()
+                #except Exception as e:
+                #    print("Exception // Sag Funktion:" + str(e))
+
 
             elif url:
                 if len(args) == 0: #ganzes video, ohne volume
@@ -421,6 +425,17 @@ class Physik(commands.Cog):
         else:
             await ctx.send("Dumm oder was?")
 
+    @Sag.error
+    async def Sag_handler(self, ctx, error):
+        print("Exception /// Errorhandler" + str(error))
+        if "FileNotFoundError" in str(error):
+            print("Datei konnte nicht gefunden werden")
+            await ctx.send("Datei konnte nicht gefunden werden")
+        elif "'NoneType' object has no attribute 'channel'" in str(error):
+            await ctx.send("Such dir erstmal nen Audiokanal, du Otto")
+
+
+
     @commands.command(help="SEID IHR BEREIT KINDER?")
     async def Squad(self, ctx):
         squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
@@ -452,36 +467,27 @@ class Magie(commands.Cog):
         self.bot = bot
 
     @commands.command(help="mp3 Statistiken")
-    async def mp3stats(self, ctx, raw=None):
-        mp3_list = []
-        #mp3stat_embed = discord.Embed(title='Audiostatistik')
-        with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as f:
-            data = json.load(f)
+    async def mp3stats(self, ctx, *args):
+        if len(args) == 0:
+            mp3_list = []
+            with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            for x in data:
+                mp3_list.append(x)
+            res = Counter([x['Audiofile'] for x in mp3_list])
+            z = dict(res)
+            sortedRes = ({k: v for k, v in sorted(z.items(), key=lambda item: item[1], reverse=True)})
+            teststring = ""
+            for y in sortedRes:
+                teststring+="{} : {} \\|\\|\\| ".format(y,sortedRes[y])
 
-        for x in data:
-            #print(x['Audiofile'])
-            mp3_list.append(x)
-
-
-
-        res = Counter([x['Audiofile'] for x in mp3_list])
-
-        z = dict(res)
-
-        sortedRes = ({k: v for k, v in sorted(z.items(), key=lambda item: item[1], reverse=True)})
-        print(sortedRes)
-        teststring = ""
-        for y in sortedRes:
-            teststring+="{} : {} \\|\\|\\| ".format(y,sortedRes[y])
-            #await ctx.send("{} : {}".format(y,res[y]))
-            #mp3stat_embed.add_field(name=y, value=res[y])
-
-        print(teststring)
-        await ctx.send(teststring)
-
-        #await ctx.send('', embed=mp3stat_embed)
+            print("MP3Stats von {} angefordert".format(ctx.author))
+            await ctx.send(teststring)
 
 
+    @commands.command(help="Testcommand")
+    async def showString(self, ctx):
+        print(ctx.message)
 
 
     @commands.command(help="Zeigt alle mp3s an")
@@ -648,6 +654,7 @@ async def on_message(message):
     await bot.process_commands(message)
     if "donger" in str(message.content).lower():
         await message.channel.send("ヽ༼ຈل͜ຈ༽ﾉ")
+
 
 
 bot.add_cog(Physik(bot))
