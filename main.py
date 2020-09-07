@@ -615,24 +615,26 @@ async def leave(ctx):
                 await x.disconnect()
 
 @bot.command()
-async def uploadMP3stats():
+async def uploadMP3stats(ctx):
     with open('res/mp3s_stats.txt', 'rb') as g:
         try:
             dbx.files_delete_v2("/mp3s_stats.txt")
         except:
             pass
         dbx.files_upload(g.read(), "/mp3s_stats.txt")
+        await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
         g.close()
 
 
 @bot.command()
-async def downloadMP3stats():
+async def downloadMP3stats(ctx):
     try:
         with open("res/mp3s_stats.txt", "wb") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
             h.close()
+        await ctx.send("MP3stats von Dropbox runtergeladen")
         print("mp3s_stats.txt runtergeladen")
     except:
         print("Datei existiert in DropBox nicht")
