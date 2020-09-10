@@ -598,7 +598,7 @@ class Magie(commands.Cog):
             print("Datei wurde in mp3stats umbenannt...")
         os.rename('res/mp3s/{}.mp3'.format(oldfile), 'res/mp3s/{}.mp3'.format(newfile))
 
-        with open('res/mp3s/{}'.format(newfile), 'rb') as f:
+        with open('res/mp3s/{}.mp3'.format(newfile), 'rb') as f:
             dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(oldfile))
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}.mp3".format(newfile))
             f.close()
