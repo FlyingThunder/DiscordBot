@@ -581,6 +581,29 @@ class Magie(commands.Cog):
             elif filestate == "overwrite":
                 await ctx.send("Datei existiert bereits in anderer Länge. Überschreibe auf DropBox.")
 
+    @commands.command(help="Alter Name + Neuer Name")
+    async def Rename(self, ctx, oldfilevar, newfilevar):
+        oldfile = oldfilevar.lower()
+        newfile = newfilevar.lower()
+        with open('res/mp3s_stats.txt', 'r+', encoding="utf-8") as e:
+            data = e.read()
+            print(data)
+            if oldfile in data:
+                print("test")
+            newdata = data.replace('"Audiofile": "{}"'.format(oldfile), '"Audiofile": "{}"'.format(newfile))
+            e.seek(0)
+            e.write(newdata)
+            e.close()
+            await uploadMP3stats()
+            print("Datei wurde in mp3stats umbenannt...")
+        os.rename('res/mp3s/{}.mp3'.format(oldfile), 'res/mp3s/{}.mp3'.format(newfile))
+
+        with open('res/mp3s/{}'.format(newfile), 'rb') as f:
+            dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(oldfile))
+            dbx.files_upload(f.read(), "/DiscordBotMp3s/{}.mp3".format(newfile))
+            f.close()
+        await ctx.send("Datei umbenannt")
+
 @bot.event
 async def on_ready():
     for guild in bot.guilds:
@@ -625,14 +648,15 @@ async def leave(ctx):
                 await x.disconnect()
 
 @bot.command()
-async def uploadMP3stats(ctx):
+async def uploadMP3stats(ctx=None):
     with open('res/mp3s_stats.txt', 'rb') as g:
         try:
             dbx.files_delete_v2("/mp3s_stats.txt")
         except:
             pass
         dbx.files_upload(g.read(), "/mp3s_stats.txt")
-        await ctx.send("MP3stats auf Dropbox hochgeladen")
+        if ctx:
+            await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
         g.close()
 
