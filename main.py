@@ -549,8 +549,12 @@ class Magie(commands.Cog):
                 ydl.download([url])
                 if start and end:
                     print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
-                    #ext = AudioClipExtractor('test.mp3', ffmpegpath)
-                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
+
+                    environment = "heroku"
+                    if environment == "local":
+                        ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                    elif environment == "heroku":
+                        ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
                     specs = str(start) + " " + str(end)
                     ext.extract_clips(specs)
