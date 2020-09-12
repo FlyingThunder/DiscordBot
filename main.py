@@ -29,6 +29,8 @@ watcher = LolWatcher(riot_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
+environment = "heroku"
+
 
 
 #bot command präfix
@@ -343,8 +345,9 @@ class Physik(commands.Cog):
                 url = argument
             else:
                 play = argument
+                os.path.getsize('res/mp3s/{}.mp3'.format(argument.lower()))
 
-            os.path.getsize('res/mp3s/{}.mp3'.format(argument.lower()))
+
 
 
             if play:
@@ -421,7 +424,10 @@ class Physik(commands.Cog):
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
                     print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(args[0]) + " / " + str(args[1]) +  " von: " + str(ctx.author))
-                os.remove('res/mp3s/Temp_File.mp3')
+                try:
+                    os.remove('res/mp3s/Temp_File.mp3')
+                except:
+                    print("Scheint nicht zu existieren?")
         else:
             await ctx.send("Dumm oder was?")
 
@@ -549,8 +555,6 @@ class Magie(commands.Cog):
                 ydl.download([url])
                 if start and end:
                     print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
-
-                    environment = "heroku"
                     if environment == "local":
                         ext = AudioClipExtractor('test.mp3', ffmpegpath)
                     elif environment == "heroku":
