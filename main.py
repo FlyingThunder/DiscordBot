@@ -343,8 +343,9 @@ class Physik(commands.Cog):
                 url = argument
             else:
                 play = argument
+                os.path.getsize('res/mp3s/{}.mp3'.format(argument.lower()))
 
-            os.path.getsize('res/mp3s/{}.mp3'.format(argument.lower()))
+
 
 
             if play:
