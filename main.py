@@ -483,9 +483,14 @@ class Magie(commands.Cog):
             res = Counter([x['Audiofile'] for x in mp3_list])
             z = dict(res)
             sortedRes = ({k: v for k, v in sorted(z.items(), key=lambda item: item[1], reverse=True)})
-            teststring = ""
-            for y in sortedRes:
-                teststring+="{} : {} \\|\\|\\| ".format(y,sortedRes[y])
+            dinv = {}
+            for k, v in sortedRes.items():
+                if v in dinv:
+                    dinv[v].append(k)
+                else:
+                    dinv[v] = [k]
+            dinv2 = str(dinv).replace("],","\n")
+            teststring = "".join(list(filter(lambda ch: ch not in "{}[]'", str(dinv2))))
 
             print("MP3Stats von {} angefordert".format(ctx.author))
             await ctx.send(teststring)
