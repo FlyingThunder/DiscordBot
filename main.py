@@ -508,8 +508,20 @@ class Magie(commands.Cog):
         for x in files:
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
-        print(sorted(audiofiles))
-        await ctx.send(sorted(audiofiles))
+        print(len(str(audiofiles)))
+        if len(str(audiofiles)) > 2000:
+            print("MP3Stats von {} angefordert".format(ctx.author))
+            templist = []
+            for x in audiofiles:
+                templist.append(x)
+                if len(templist) % 25 == 0:
+                    print("test")
+                    await ctx.send(templist)
+                    templist = []
+            await ctx.send(templist)
+        else:
+            print(sorted(audiofiles))
+            await ctx.send(sorted(audiofiles))
 
     @commands.command(help="löscht audiodatei")
     async def Delete(self, ctx, name):
