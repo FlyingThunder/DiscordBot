@@ -6,7 +6,7 @@ import praw
 import json
 import sys
 from datetime import datetime
-from riotwatcher import LolWatcher, ApiError
+from riotwatcher import LolWatcher, ApiError, TftWatcher
 import urllib.request
 import youtube_dl
 import youtube_dlc
@@ -26,6 +26,7 @@ riot_api_key = os.getenv("riot_api_key")
 dropbox_key = os.getenv("dropbox_key")
 
 watcher = LolWatcher(riot_api_key)
+tftwatcher = TftWatcher(riot_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
@@ -335,6 +336,40 @@ class Physik(commands.Cog):
     @commands.command(help="stats vong letzte 10 spiele her")
     async def Letzte10(self, ctx, argument):
         await ctx.send('', embed=Last_10_games(name=argument))
+
+    @commands.command(help="TFT Testshit")
+    async def TFT(self, ctx, name, count=1):
+        testvar = tftwatcher.summoner.by_name("euw1", name)
+        puuid = testvar['puuid']
+        # print(puuid)
+        match = tftwatcher.match.by_puuid("europe", puuid, count)
+        # print(match)
+        x = 0
+        match_info_list = []
+        while x < count:
+            matchdetail = tftwatcher.match.by_id("europe", match[x])
+            # print(matchdetail)
+            index_of_summoner = matchdetail['metadata']['participants'].index(puuid)
+            metadata_of_summoner = matchdetail['info']['participants'][index_of_summoner]
+            #print(metadata_of_summoner)
+            rounds = metadata_of_summoner['last_round']
+            level = metadata_of_summoner['level']
+            place = metadata_of_summoner['placement']
+            killed = metadata_of_summoner['players_eliminated']
+            total_damage = metadata_of_summoner['total_damage_to_players']
+            traits = []
+            x += 1
+            for y in metadata_of_summoner['traits']:
+                traits.append({y['name']: y['num_units']})
+            match_info_list.append(
+                "Platz: {}, Level: {}, Runden: {}, Rausgeschmissen: {}, Damage: {}, Einheiten: {}".format(place,
+                                                                                                              level,
+                                                                                                              rounds,
+                                                                                                              killed,
+                                                                                                              total_damage,
+                                                                                                              traits))
+        await ctx.send(match_info_list)
+
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
     async def Sag(self, ctx, argument=None, *args):
