@@ -24,9 +24,10 @@ client_secret_var = os.getenv("reddit_client_secret")
 user_agent_var = os.getenv("reddit_user_agent")
 riot_api_key = os.getenv("riot_api_key")
 dropbox_key = os.getenv("dropbox_key")
+tft_api_key = os.getenv("tft_api_key")
 
 watcher = LolWatcher(riot_api_key)
-tftwatcher = TftWatcher(riot_api_key)
+tftwatcher = TftWatcher(tft_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
