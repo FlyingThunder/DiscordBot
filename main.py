@@ -346,7 +346,6 @@ class Physik(commands.Cog):
         match = tftwatcher.match.by_puuid("europe", puuid, count)
         # print(match)
         x = 0
-        match_info_list = []
         while x < count:
             matchdetail = tftwatcher.match.by_id("europe", match[x])
             # print(matchdetail)
@@ -358,18 +357,15 @@ class Physik(commands.Cog):
             place = metadata_of_summoner['placement']
             killed = metadata_of_summoner['players_eliminated']
             total_damage = metadata_of_summoner['total_damage_to_players']
+            champions = []
+            for z in metadata_of_summoner['units']:
+                champions.append({z['character_id']: z['items']})
             traits = []
             x += 1
             for y in metadata_of_summoner['traits']:
                 traits.append({y['name']: y['num_units']})
-            match_info_list.append(
-                "Platz: {}, Level: {}, Runden: {}, Rausgeschmissen: {}, Damage: {}, Einheiten: {}".format(place,
-                                                                                                              level,
-                                                                                                              rounds,
-                                                                                                              killed,
-                                                                                                              total_damage,
-                                                                                                              traits))
-        await ctx.send(match_info_list)
+            match_info = "Platz: {}, Level: {}, Runden: {}, Rausgeschmissen: {}, Damage: {}, Traits: {}, Champion: {}".format(place, level, rounds, killed, total_damage, traits, champions)
+            await ctx.send(match_info)
 
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
