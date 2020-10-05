@@ -342,16 +342,12 @@ class Physik(commands.Cog):
     async def TFT(self, ctx, name, count=1):
         testvar = tftwatcher.summoner.by_name("euw1", name)
         puuid = testvar['puuid']
-        # print(puuid)
         match = tftwatcher.match.by_puuid("europe", puuid, count)
-        # print(match)
         x = 0
         while x < count:
             matchdetail = tftwatcher.match.by_id("europe", match[x])
-            # print(matchdetail)
             index_of_summoner = matchdetail['metadata']['participants'].index(puuid)
             metadata_of_summoner = matchdetail['info']['participants'][index_of_summoner]
-            #print(metadata_of_summoner)
             rounds = metadata_of_summoner['last_round']
             level = metadata_of_summoner['level']
             place = metadata_of_summoner['placement']
@@ -364,8 +360,33 @@ class Physik(commands.Cog):
             x += 1
             for y in metadata_of_summoner['traits']:
                 traits.append({y['name']: y['num_units']})
-            match_info = "Platz: {}, Level: {}, Runden: {}, Rausgeschmissen: {}, Damage: {}, Traits: {}, Champion: {}".format(place, level, rounds, killed, total_damage, traits, champions)
-            await ctx.send(match_info)
+            match_info_list = {}
+            match_info_list['Platz'] = place
+            match_info_list['Level'] = level
+            match_info_list['Runden'] = rounds
+            match_info_list['Killed'] = killed
+            match_info_list['Damage'] = total_damage
+            match_info_list['Traits'] = traits
+            match_info_list['Champions'] = champions
+
+            with open('res/items.json') as json_file:
+                data = json.load(json_file)
+                itemdict = {}
+                for b in data:
+                    itemdict[str(b['id'])] = str(b['name'])
+
+            newchamplist = []
+            for a in match_info_list['Champions']:
+                for key, value in a.items():
+                    newitemlist = []
+                    if value:
+                        for c in value:
+                            newitemlist.append(itemdict[str(c)])
+                    newchamplist.append({key: newitemlist})
+
+            match_info_list['Champions'] = newchamplist
+            print("Letzte {} Matches für {} von {} angefordert".format(count,name,ctx.author))
+            await ctx.send(match_info_list)
 
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
