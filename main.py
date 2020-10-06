@@ -722,6 +722,15 @@ async def leave(ctx):
                 await x.disconnect()
 
 @bot.command()
+async def ytdlverbose(ctx, url):
+    from subprocess import PIPE, run
+    result = run('youtube-dl -v {}'.format(url), stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+    x = result.stdout.split("\n")
+    for y in x:
+        await ctx.send(y)
+
+
+@bot.command()
 async def uploadMP3stats(ctx=None):
     with open('res/mp3s_stats.txt', 'rb') as g:
         try:
