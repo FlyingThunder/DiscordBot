@@ -6,17 +6,14 @@ import praw
 import json
 import sys
 from datetime import datetime
-from riotwatcher import LolWatcher, ApiError, TftWatcher
+from riotwatcher import LolWatcher, TftWatcher
 import urllib.request
-import youtube_dl
 import youtube_dlc
-from audioclipextractor import AudioClipExtractor, SpecsParser
+from audioclipextractor import AudioClipExtractor
 import dropbox
 from collections import Counter
 
-
-
-#.env laden
+# .env laden
 load_dotenv()
 TOKEN = os.getenv('discord_token')
 client_id_var = os.getenv("reddit_client_id")
@@ -35,12 +32,13 @@ environment = "heroku"
 
 
 
-#bot command präfix
-bot = commands.Bot(command_prefix='!',case_insensitive=True)
+# bot command präfix
+bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command("help")
 ffmpegpath = "res/ffmpeg.exe"
 startTime = datetime.now()
 print(startTime)
+
 
 def dropbox_upload(filename):
     audiofiles_dropbox = []
@@ -48,11 +46,7 @@ def dropbox_upload(filename):
     for x in dropbox_filescan.entries:
         audiofiles_dropbox.append(x.name.lower())
 
-    mp3_files = os.listdir("res/mp3s/")
-    #print(mp3_files)
-
     x = str(filename).lower() + ".mp3"
-
     if x not in audiofiles_dropbox:
         f = open('res/mp3s/{}'.format(x.lower()), 'rb')
         print(f)
@@ -356,14 +350,13 @@ class Physik(commands.Cog):
             x += 1
             for y in metadata_of_summoner['traits']:
                 traits.append({y['name']: y['num_units']})
-            match_info_list = {}
-            match_info_list['Platz'] = place
-            match_info_list['Level'] = level
-            match_info_list['Runden'] = rounds
-            match_info_list['Killed'] = killed
-            match_info_list['Damage'] = total_damage
-            match_info_list['Traits'] = traits
-            match_info_list['Champions'] = champions
+            match_info_list = {'Platz': place,
+                               'Level': level,
+                               'Runden': rounds,
+                               'Killed': killed,
+                               'Damage': total_damage,
+                               'Traits': traits,
+                               'Champions': champions}
 
             with open('res/items.json') as json_file:
                 data = json.load(json_file)
@@ -431,7 +424,6 @@ class Physik(commands.Cog):
                         dbx.files_upload(g.read(), "/mp3s_stats.txt")
                 #except Exception as e:
                 #    print("Exception // Sag Funktion:" + str(e))
-
 
             elif url:
                 if len(args) == 0: #ganzes video, ohne volume
@@ -540,6 +532,22 @@ class Magie(commands.Cog):
 
             print("MP3Stats von {} angefordert".format(ctx.author))
             await ctx.send(teststring)
+
+    @commands.command(help="Unbenutze MP3s")
+    async def unusedMP3(self, ctx):
+        audiofiles_dropbox = []
+        dropbox_filescan = dbx.files_list_folder("/discordbotmp3s")
+        for x in dropbox_filescan.entries:
+            audiofiles_dropbox.append(x.name)
+        #print(audiofiles_dropbox)
+        unusedmp3list = []
+        with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for x in audiofiles_dropbox:
+                if str(x).replace(".mp3","") not in str(data):
+                    unusedmp3list.append(x)
+
+        await ctx.send("Unbenutzte mp3s:" + str(unusedmp3list).replace("[","").replace("]",""))
 
 
     @commands.command(help="Testcommand")
