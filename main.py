@@ -124,18 +124,14 @@ def Mainbot():
         if x not in eread:
             with open('res/reddit_posts.json', 'a') as f:
                 json.dump(x, f)
-                f.close()
-        else:
-            e.close()
     print(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-    file = open("res/reddit_posts.json", "r+")
-    readfile = file.read()
-    print(readfile.count('"'))
-    if readfile.count('"')>100:
-        file.truncate(0)
-        print("reddit_posts.json cleared")
-    file.close()
+    with open("res/reddit_posts.json", "r+") as file:
+        readfile = file.read()
+        print(readfile.count('"'))
+        if readfile.count('"')>100:
+            file.truncate(0)
+            print("reddit_posts.json cleared")
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
 def Bruder(name):
@@ -420,7 +416,6 @@ class Physik(commands.Cog):
                             content = json.load(e)
                             for x in content:
                                 audiostat_list.append(x)
-                            e.close()
                         except:
                             print("Datei ist noch leer")
                     data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
@@ -428,14 +423,12 @@ class Physik(commands.Cog):
                     print(data)
                     with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
                         json.dump(audiostat_list, f, ensure_ascii=False)
-                        f.close()
                     with open('res/mp3s_stats.txt', 'rb') as g:
                         try:
                             dbx.files_delete_v2("/mp3s_stats.txt")
                         except:
                             pass
                         dbx.files_upload(g.read(), "/mp3s_stats.txt")
-                        g.close()
                 #except Exception as e:
                 #    print("Exception // Sag Funktion:" + str(e))
 
@@ -667,7 +660,6 @@ class Magie(commands.Cog):
             newdata = data.replace('"Audiofile": "{}"'.format(oldfile), '"Audiofile": "{}"'.format(newfile))
             e.seek(0)
             e.write(newdata)
-            e.close()
             await uploadMP3stats()
             print("Datei wurde in mp3stats umbenannt...")
         os.rename('res/mp3s/{}.mp3'.format(oldfile), 'res/mp3s/{}.mp3'.format(newfile))
@@ -675,7 +667,6 @@ class Magie(commands.Cog):
         with open('res/mp3s/{}.mp3'.format(newfile), 'rb') as f:
             dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(oldfile))
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}.mp3".format(newfile))
-            f.close()
         await ctx.send("Datei umbenannt")
 
 @bot.event
@@ -710,7 +701,7 @@ async def on_ready():
         with open("res/mp3s_stats.txt", "wb") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
-            h.close()
+
         print("mp3s_stats.txt runtergeladen")
     except:
         print("Datei existiert in DropBox nicht")
@@ -742,7 +733,6 @@ async def uploadMP3stats(ctx=None):
         if ctx:
             await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
-        g.close()
 
 
 @bot.command()
@@ -751,7 +741,6 @@ async def downloadMP3stats(ctx):
         with open("res/mp3s_stats.txt", "wb") as h:
             metadata, res = dbx.files_download(path="/mp3s_stats.txt")
             h.write(res.content)
-            h.close()
         await ctx.send("MP3stats von Dropbox runtergeladen")
         print("mp3s_stats.txt runtergeladen")
     except:
