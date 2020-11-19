@@ -549,6 +549,25 @@ class Magie(commands.Cog):
 
         await ctx.send("Unbenutzte mp3s:" + str(unusedmp3list).replace("[","").replace("]",""))
 
+    @commands.command(help="Lösche von mp3stats")
+    async def deleteFromMP3Stats(self, ctx, file):
+        with open('res/mp3s_stats.txt', 'r+', encoding="utf-8") as e:
+            data = e.read()
+            print(data)
+            if file in data:
+                print("Datei in MP3stats gefunden")
+                newdata = data.replace('"Audiofile": "{}"'.format(file), '')
+                e.seek(0)
+                e.write(newdata)
+                await uploadMP3stats()
+                print("Datei wurde aus mp3stats gelöscht...")
+        os.remove('res/mp3s/{}.mp3'.format(file))
+        try:
+            dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(file))
+        except:
+            pass
+        await ctx.send("Datei aus mp3stats gelöscht")
+
 
     @commands.command(help="Testcommand")
     async def showString(self, ctx):
