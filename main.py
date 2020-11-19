@@ -558,7 +558,7 @@ class Magie(commands.Cog):
                 print("Datei in MP3stats gefunden")
                 newdata = data.replace('"Audiofile": "{}"'.format(file), '')
                 e.seek(0)
-                e.write(data)
+                e.write(newdata)
                 await uploadMP3stats()
                 print("Datei wurde aus mp3stats gelöscht...")
         try:
