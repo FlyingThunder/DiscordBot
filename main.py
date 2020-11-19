@@ -560,7 +560,8 @@ class Magie(commands.Cog):
                     newdata.remove(x)
             e.seek(0)
             e.truncate()
-            e.write(str(newdata))
+            jsondata = json.dumps(newdata)
+            e.write(str(jsondata))
         try:
             os.remove('res/mp3s/{}.mp3'.format(file))
             dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(file))
