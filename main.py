@@ -569,6 +569,15 @@ class Magie(commands.Cog):
             pass
         await ctx.send("Datei aus mp3stats gelöscht")
 
+    @commands.command(help="MP3s die nicht mehr existieren")
+    async def obsoleteMp3stat(self, ctx):
+        with open('res/mp3s_stats.txt', 'r+', encoding="utf-8") as e:
+            data = list(json.load(e))
+            files = os.listdir('res/mp3s/')
+            print(files)
+            for x in data:
+                if str(x["Audiofile"] + ".mp3") not in files:
+                    await ctx.send(f"Datei {x['Audiofile']} aus MP3Stats gibt es nicht!")
 
     @commands.command(help="Testcommand")
     async def showString(self, ctx):
