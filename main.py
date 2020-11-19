@@ -561,8 +561,8 @@ class Magie(commands.Cog):
                 e.write(newdata)
                 await uploadMP3stats()
                 print("Datei wurde aus mp3stats gelöscht...")
-        os.remove('res/mp3s/{}.mp3'.format(file))
         try:
+            os.remove('res/mp3s/{}.mp3'.format(file))
             dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(file))
         except:
             pass
