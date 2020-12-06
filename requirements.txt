@@ -8,7 +8,8 @@ cffi==1.14.2
 chardet==3.0.4
 click==7.1.2
 cycler==0.10.0
-discord.py==1.4.1
+#discord.py==1.4.1
+discord.py[voice]
 dnspython==1.15.0
 dnspython3==1.15.0
 dropbox==10.4.1
