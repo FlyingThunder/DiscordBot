@@ -389,9 +389,6 @@ class Physik(commands.Cog):
                 play = argument
                 os.path.getsize('res/mp3s/{}.mp3'.format(argument.lower()))
 
-
-
-
             if play:
                 #try:
                 audiostat_list = []
@@ -422,8 +419,13 @@ class Physik(commands.Cog):
                         except:
                             pass
                         dbx.files_upload(g.read(), "/mp3s_stats.txt")
-                #except Exception as e:
-                #    print("Exception // Sag Funktion:" + str(e))
+                else:
+                    files = os.listdir('res/mp3s/')
+                    matchedfiles = [extension for extension in files if (argument in extension)]
+                    if matchedfiles:
+                        await ctx.send(f"Meinst du {matchedfiles}")
+                    else:
+                        await ctx.send("Datei konnte nicht gefunden werden")
 
             elif url:
                 if len(args) == 0: #ganzes video, ohne volume
@@ -469,14 +471,15 @@ class Physik(commands.Cog):
         else:
             await ctx.send("Dumm oder was?")
 
-    @Sag.error
-    async def Sag_handler(self, ctx, error):
-        print("Exception /// Errorhandler" + str(error))
-        if "FileNotFoundError" in str(error):
-            print("Datei konnte nicht gefunden werden")
-            await ctx.send("Datei konnte nicht gefunden werden")
-        elif "'NoneType' object has no attribute 'channel'" in str(error):
-            await ctx.send("Such dir erstmal nen Audiokanal, du Otto")
+    # @Sag.error
+    # async def Sag_handler(self, ctx, error):
+    #     print("Exception /// Errorhandler" + str(error))
+    #
+    #     if "FileNotFoundError" in str(error):
+    #         print("Datei konnte nicht gefunden werden")
+    #         await ctx.send("Datei konnte nicht gefunden werden")
+    #     elif "'NoneType' object has no attribute 'channel'" in str(error):
+    #         await ctx.send("Such dir erstmal nen Audiokanal, du Otto")
 
 
 
