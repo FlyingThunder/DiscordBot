@@ -588,11 +588,13 @@ class Magie(commands.Cog):
     @commands.command(help="Zeigt alle mp3s an")
     async def mp3s(self, ctx):
         files = os.listdir('res/mp3s/')
+        files.sort()
         audiofiles = []
         for x in files:
             if ('.mp3' or '.wav') in str(x):
                 audiofiles.append(x)
         print(len(str(audiofiles)))
+        audiofiles.sort()
         if len(str(audiofiles)) > 2000:
             print("MP3Stats von {} angefordert".format(ctx.author))
             templist = []
@@ -600,8 +602,10 @@ class Magie(commands.Cog):
                 templist.append(x)
                 if len(templist) % 25 == 0:
                     print("test")
+                    templist.sort()
                     await ctx.send(templist)
                     templist = []
+            templist.sort()
             await ctx.send(templist)
         else:
             print(sorted(audiofiles))
