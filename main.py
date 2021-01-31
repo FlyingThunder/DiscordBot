@@ -12,6 +12,7 @@ import youtube_dlc
 from audioclipextractor import AudioClipExtractor
 import dropbox
 from collections import Counter
+import random
 
 # .env laden
 load_dotenv()
@@ -377,6 +378,11 @@ class Physik(commands.Cog):
             print("Letzte {} Matches für {} von {} angefordert".format(count,name,ctx.author))
             await ctx.send(match_info_list)
 
+    @commands.command(help="Volume dazu angeben")
+    async def Random(self, ctx, argument=1):
+        file = random.choice(os.listdir("res/mp3s/"))
+        cutfile = file.replace(".mp3","")
+        await Labern(audiofile=cutfile, message=ctx.message, volume=argument)
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
     async def Sag(self, ctx, argument=None, *args):
