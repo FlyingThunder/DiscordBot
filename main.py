@@ -430,7 +430,7 @@ class Physik(commands.Cog):
                         dbx.files_upload(g.read(), "/mp3s_stats.txt")
                 else:
                     files = os.listdir('res/mp3s/')
-                    matchedfiles = [extension for extension in files if (argument in extension)]
+                    matchedfiles = [extension for extension in files if (argument.lower() in extension.lower())]
                     if matchedfiles:
                         await ctx.send(f"Meinst du {matchedfiles}")
                     else:
