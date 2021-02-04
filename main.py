@@ -421,7 +421,7 @@ class Physik(commands.Cog):
                                 audiostat_list.append(x)
                         except:
                             print("Datei ist noch leer")
-                    data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
+                    data = {"Audiofile":play.lower(),"Zeit":str(datetime.now()),"Author":str(ctx.author)}
                     audiostat_list.append(data)
                     print(data)
                     with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
