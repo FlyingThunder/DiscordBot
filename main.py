@@ -409,35 +409,37 @@ class Physik(commands.Cog):
                 else:
                     await Labern(audiofile=play, message=ctx.message, volume=None)
 
+                filelist = []
                 for file in os.listdir('res/mp3s/'):
-                    if f'{play}.mp3'.lower() in file.lower():
-                        print("file exists, writing in mp3stats")
-                        with open('res/mp3s_stats.txt', 'r', encoding="utf-8") as e:
-                            try:
-                                content = json.load(e)
-                                for x in content:
-                                    audiostat_list.append(x)
-                            except:
-                                print("Datei ist noch leer")
-                        data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
-                        audiostat_list.append(data)
-                        print(data)
-                        with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
-                            json.dump(audiostat_list, f, ensure_ascii=False)
-                        with open('res/mp3s_stats.txt', 'rb') as g:
-                            try:
-                                dbx.files_delete_v2("/mp3s_stats.txt")
-                            except:
-                                pass
-                            dbx.files_upload(g.read(), "/mp3s_stats.txt")
+                    filelist.append(file.lower())
+                if f'{play}.mp3'.lower() in filelist:
+                    print("file exists, writing in mp3stats")
+                    with open('res/mp3s_stats.txt', 'r', encoding="utf-8") as e:
+                        try:
+                            content = json.load(e)
+                            for x in content:
+                                audiostat_list.append(x)
+                        except:
+                            print("Datei ist noch leer")
+                    data = {"Audiofile":play,"Zeit":str(datetime.now()),"Author":str(ctx.author)}
+                    audiostat_list.append(data)
+                    print(data)
+                    with open('res/mp3s_stats.txt', 'w', encoding="utf-8") as f:
+                        json.dump(audiostat_list, f, ensure_ascii=False)
+                    with open('res/mp3s_stats.txt', 'rb') as g:
+                        try:
+                            dbx.files_delete_v2("/mp3s_stats.txt")
+                        except:
+                            pass
+                        dbx.files_upload(g.read(), "/mp3s_stats.txt")
+                else:
+                    print("file does not exist, searching simmilar names")
+                    files = os.listdir('res/mp3s/')
+                    matchedfiles = [extension for extension in files if (argument.lower() in extension.lower())]
+                    if matchedfiles:
+                        await ctx.send(f"Meinst du {matchedfiles}")
                     else:
-                        print("file does not exist, searching simmilar names")
-                        files = os.listdir('res/mp3s/')
-                        matchedfiles = [extension for extension in files if (argument.lower() in extension.lower())]
-                        if matchedfiles:
-                            await ctx.send(f"Meinst du {matchedfiles}")
-                        else:
-                            await ctx.send("Datei konnte nicht gefunden werden")
+                        await ctx.send("Datei konnte nicht gefunden werden")
 
             elif url:
                 if len(args) == 0: #ganzes video, ohne volume
