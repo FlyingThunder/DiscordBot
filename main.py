@@ -769,7 +769,7 @@ async def on_ready():
 async def leave(ctx):
         for x in bot.voice_clients:
             if(x.guild == ctx.message.guild):
-                await x.disconnect()
+                await x.disconnect(force=True)
 
 @bot.command()
 async def ytdlverbose(ctx, url):
