@@ -30,9 +30,7 @@ tftwatcher = TftWatcher(tft_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
-environment = "heroku"
-
-
+environment = "local" #heroku
 
 # bot command präfix
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
