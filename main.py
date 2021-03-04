@@ -673,20 +673,29 @@ class Magie(commands.Cog):
 
     @commands.command(help="URL + Name + Startsekunde + Endsekunde")
     async def add_youtubeaudio(self, ctx=None, url=None, name=None, start=None, end=None, temp=None):
-        ydl_opts = {
-            'outtmpl': 'test.mp3',
-            'format': 'bestaudio/best',
-            'logger': MyLogger(),
-            'progress_hooks': [my_hook],
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+
+        command = f'youtube-dl.exe {url}'
+
+        # ydl_opts = {
+        #     'outtmpl': 'test.mp3',
+        #     'format': 'bestaudio/best',
+        #     'logger': MyLogger(),
+        #     'progress_hooks': [my_hook],
+        #     'postprocessors': [{
+        #         'key': 'FFmpegExtractAudio',
+        #         'preferredcodec': 'mp3',
+        #         'preferredquality': '192',
+        #     }],
+        # }
+
+
+
+
+
+        with 1 as xyz: #youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
-                ydl.download([url])
+                os.system(command)
+                #ydl.download([url])
                 if start and end:
                     print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
                     if environment == "local":
