@@ -8,7 +8,8 @@ import sys
 from datetime import datetime
 from riotwatcher import LolWatcher, TftWatcher
 import urllib.request
-import youtube_dlc
+#import youtube_dlc
+import youtube_dl
 from audioclipextractor import AudioClipExtractor
 import dropbox
 from collections import Counter
@@ -144,7 +145,7 @@ def Bruder(name):
     starttime = None
     status = None
 
-    try:
+    try:    #TODO: Doesnt work in custom games
         playerinstance = watcher.spectator.by_summoner(my_region, me['id'])
         matchstart = str(playerinstance['gameStartTime'])[:-3]
         participants = playerinstance['participants']
@@ -153,20 +154,24 @@ def Bruder(name):
             if x['summonerName'] == name:
                 champion = champLookup(str(x['championId']))
 
-
+        print(playerinstance)
 
         status = "Ingame"
-
-        if str(playerinstance['gameQueueConfigId']) == "400":
-            gametype = "5v5 Normal Draft"
-        if str(playerinstance['gameQueueConfigId']) == "420":
-            gametype = "5v5 Ranked Solo/Duo"
-        if str(playerinstance['gameQueueConfigId']) == "440":
-            gametype = "5v5 Ranked Flex"
-        if str(playerinstance['gameQueueConfigId']) == "450":
-            gametype = "ARAM"
-        if str(playerinstance['gameQueueConfigId']) == "700":
-            gametype = "Clash"
+        if str(playerinstance['gameType']) == "CUSTOM_GAME":
+            gametype = "Customgame"
+        else:
+            if str(playerinstance['gameQueueConfigId']) == "400":
+                gametype = "5v5 Normal Draft"
+            elif str(playerinstance['gameQueueConfigId']) == "420":
+                gametype = "5v5 Ranked Solo/Duo"
+            elif str(playerinstance['gameQueueConfigId']) == "440":
+                gametype = "5v5 Ranked Flex"
+            elif str(playerinstance['gameQueueConfigId']) == "450":
+                gametype = "ARAM"
+            elif str(playerinstance['gameQueueConfigId']) == "700":
+                gametype = "Clash"
+            else:
+                gametype = "Unbekannt"
 
 
 
@@ -388,6 +393,13 @@ class Physik(commands.Cog):
     async def Sag(self, ctx, argument=None, *args):
         url = None
         play = None
+
+        for x in args:
+            if "@" in str(x):
+                getuser = ctx.message.server.get_member(str(x))
+                ctx.message.author = getuser
+
+
         if argument:
             if "http" in argument:
                 url = argument
@@ -672,7 +684,7 @@ class Magie(commands.Cog):
                 'preferredquality': '192',
             }],
         }
-        with youtube_dlc.YoutubeDL(ydl_opts) as ydl:
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
                 ydl.download([url])
                 if start and end:
@@ -793,6 +805,13 @@ async def uploadMP3stats(ctx=None):
             await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
 
+@bot.command(name="id1")
+async def id1(ctx, user: discord.User):
+    await ctx.send(user.id)
+
+@bot.command(name="id2")
+async def id2(ctx):
+    await ctx.send(ctx.author.id)
 
 @bot.command()
 async def downloadMP3stats(ctx):
