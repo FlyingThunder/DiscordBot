@@ -9,7 +9,7 @@ from datetime import datetime
 from riotwatcher import LolWatcher, TftWatcher
 import urllib.request
 #import youtube_dlc
-#import youtube_dl
+import youtube_dl
 from audioclipextractor import AudioClipExtractor
 import dropbox
 from collections import Counter
@@ -674,47 +674,47 @@ class Magie(commands.Cog):
 
         print(f"Befehl [add_youtubeaudio] wird ausgeführt mit variablen {ctx}, {url}, {name}, {start}, {end}, {temp}")
 
-        command = f'youtube-dl.exe {url} -f 140 --audio-format "mp3" --output "test.mp3"'
+        #command = f'youtube-dl.exe {url} -f 140 --audio-format "mp3" --output "test.mp3"'
 
-        # ydl_opts = {
-        #     'outtmpl': 'test.mp3',
-        #     'format': 'bestaudio/best',
-        #     'logger': MyLogger(),
-        #     'progress_hooks': [my_hook],
-        #     'postprocessors': [{
-        #         'key': 'FFmpegExtractAudio',
-        #         'preferredcodec': 'mp3',
-        #         'preferredquality': '192',
-        #     }],
-        # }
+        ydl_opts = {
+            'outtmpl': 'test.mp3',
+            'format': 'bestaudio/best',
+            'logger': MyLogger(),
+            'progress_hooks': [my_hook],
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
 
-        #with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        try:
-            os.system(command)
-            #ydl.download([url])
-            if start and end:
-                print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
-                if environment == "local":
-                    ext = AudioClipExtractor('test.mp3', ffmpegpath)
-                elif environment == "heroku":
-                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            try:
+                #os.system(command)
+                ydl.download([url])
+                if start and end:
+                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
+                    if environment == "local":
+                        ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                    elif environment == "heroku":
+                        ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
-                specs = str(start) + " " + str(end)
-                ext.extract_clips(specs)
-                try:
-                    os.remove('res/mp3s/' + str(name).lower() + '.mp3')
-                except:
-                    pass
-                print("renaming clip1 to proper filename")
-                os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                os.remove('test.mp3')
-            else:
-                print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
-                os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-            if not temp:
-                await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
-        except Exception as e:
-            await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
+                    specs = str(start) + " " + str(end)
+                    ext.extract_clips(specs)
+                    try:
+                        os.remove('res/mp3s/' + str(name).lower() + '.mp3')
+                    except:
+                        pass
+                    print("renaming clip1 to proper filename")
+                    os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                    os.remove('test.mp3')
+                else:
+                    print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
+                    os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                if not temp:
+                    await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+            except Exception as e:
+                await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
         if not temp:
             filestate = (dropbox_upload(name))
             print(filestate)
