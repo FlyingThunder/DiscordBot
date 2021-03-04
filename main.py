@@ -9,7 +9,7 @@ from datetime import datetime
 from riotwatcher import LolWatcher, TftWatcher
 import urllib.request
 #import youtube_dlc
-import youtube_dl
+#import youtube_dl
 from audioclipextractor import AudioClipExtractor
 import dropbox
 from collections import Counter
@@ -30,7 +30,7 @@ tftwatcher = TftWatcher(tft_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
-environment = "local" #heroku
+environment = "heroku" #local
 
 # bot command präfix
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
@@ -49,7 +49,6 @@ def dropbox_upload(filename):
     x = str(filename).lower() + ".mp3"
     if x not in audiofiles_dropbox:
         f = open('res/mp3s/{}'.format(x.lower()), 'rb')
-        print(f)
         print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
         dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
         return "upload"
@@ -228,6 +227,7 @@ async def Labern(message, audiofile, volume):
     if volume is None:
         voice_channel = message.author.voice.channel
         vc = await voice_channel.connect()
+        print(f"spiele audiofile {audiofile.lower()} ab")
         vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
         while vc.is_playing() == True:
             pass
@@ -453,43 +453,43 @@ class Physik(commands.Cog):
 
             elif url:
                 if len(args) == 0: #ganzes video, ohne volume
-                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
-                        await Labern(audiofile="Temp_File", message=ctx.message, volume=None)
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
+                        await Labern(audiofile="temp_file", message=ctx.message, volume=None)
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
                     print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
                 if len(args) == 1: #ganzes video, mit volume
-                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
-                        await Labern(audiofile="Temp_File", message=ctx.message, volume=args[0])
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
+                        await Labern(audiofile="temp_file", message=ctx.message, volume=args[0])
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
                     print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "von: " + str(ctx.author))
                 elif len(args) == 2: #start + end
-                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=args[0], end=args[1], temp=True)
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", start=args[0], end=args[1], temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
-                        await Labern(audiofile="Temp_File", message=ctx.message, volume=None)
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
+                        await Labern(audiofile="temp_file", message=ctx.message, volume=None)
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
                     print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(args[0]) + " / " + str(args[1]) +  " von: " + str(ctx.author))
                 elif len(args) == 3: #start+end+volume
-                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=args[0], end=args[1], temp=True)
+                    await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", start=args[0], end=args[1], temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
-                        await Labern(audiofile="Temp_File", message=ctx.message, volume=args[2])
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
+                        await Labern(audiofile="temp_file", message=ctx.message, volume=args[2])
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
                     print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(args[0]) + " / " + str(args[1]) +  " von: " + str(ctx.author))
                 try:
-                    os.remove('res/mp3s/Temp_File.mp3')
+                    os.remove('res/mp3s/temp_file.mp3')
                 except:
                     print("Scheint nicht zu existieren?")
         else:
@@ -672,7 +672,9 @@ class Magie(commands.Cog):
     @commands.command(help="URL + Name + Startsekunde + Endsekunde")
     async def add_youtubeaudio(self, ctx=None, url=None, name=None, start=None, end=None, temp=None):
 
-        command = f'youtube-dl.exe {url}'
+        print(f"Befehl [add_youtubeaudio] wird ausgeführt mit variablen {ctx}, {url}, {name}, {start}, {end}, {temp}")
+
+        command = f'youtube-dl.exe {url} -f 140 --audio-format "mp3" --output "test.mp3"'
 
         # ydl_opts = {
         #     'outtmpl': 'test.mp3',
@@ -686,36 +688,33 @@ class Magie(commands.Cog):
         #     }],
         # }
 
+        #with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        try:
+            os.system(command)
+            #ydl.download([url])
+            if start and end:
+                print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
+                if environment == "local":
+                    ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                elif environment == "heroku":
+                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
-
-
-
-        with 1 as xyz: #youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            try:
-                os.system(command)
-                #ydl.download([url])
-                if start and end:
-                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
-                    if environment == "local":
-                        ext = AudioClipExtractor('test.mp3', ffmpegpath)
-                    elif environment == "heroku":
-                        ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
-
-                    specs = str(start) + " " + str(end)
-                    ext.extract_clips(specs)
-                    try:
-                        os.remove('res/mp3s/' + str(name).lower() + '.mp3')
-                    except:
-                        pass
-                    os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                    os.remove('test.mp3')
-                else:
-                    print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
-                    os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                if not temp:
-                    await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
-            except Exception as e:
-                await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
+                specs = str(start) + " " + str(end)
+                ext.extract_clips(specs)
+                try:
+                    os.remove('res/mp3s/' + str(name).lower() + '.mp3')
+                except:
+                    pass
+                print("renaming clip1 to proper filename")
+                os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                os.remove('test.mp3')
+            else:
+                print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
+                os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+            if not temp:
+                await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+        except Exception as e:
+            await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
         if not temp:
             filestate = (dropbox_upload(name))
             print(filestate)
