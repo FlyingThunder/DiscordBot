@@ -30,7 +30,7 @@ tftwatcher = TftWatcher(tft_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
-environment = "local" #heroku
+environment = "heroku" #local
 
 # bot command präfix
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
@@ -455,7 +455,7 @@ class Physik(commands.Cog):
                 if len(args) == 0: #ganzes video, ohne volume
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
                         await Labern(audiofile="Temp_File", message=ctx.message, volume=None)
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
@@ -464,7 +464,7 @@ class Physik(commands.Cog):
                 if len(args) == 1: #ganzes video, mit volume
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
                         await Labern(audiofile="Temp_File", message=ctx.message, volume=args[0])
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
@@ -473,7 +473,7 @@ class Physik(commands.Cog):
                 elif len(args) == 2: #start + end
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=args[0], end=args[1], temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
                         await Labern(audiofile="Temp_File", message=ctx.message, volume=None)
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
@@ -482,7 +482,7 @@ class Physik(commands.Cog):
                 elif len(args) == 3: #start+end+volume
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="Temp_File", start=args[0], end=args[1], temp=True)
                     try:
-                        print("Audiodatei wird abgespielt: " + "Temp_File" + " von: " + str(ctx.author))
+                        print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
                         await Labern(audiofile="Temp_File", message=ctx.message, volume=args[2])
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
@@ -672,7 +672,7 @@ class Magie(commands.Cog):
     @commands.command(help="URL + Name + Startsekunde + Endsekunde")
     async def add_youtubeaudio(self, ctx=None, url=None, name=None, start=None, end=None, temp=None):
 
-        command = f'youtube-dl.exe {url}'
+        command = f'youtube-dl.exe {url} -f 140 --audio-format "mp3" --output "test.mp3"'
 
         # ydl_opts = {
         #     'outtmpl': 'test.mp3',
@@ -686,36 +686,32 @@ class Magie(commands.Cog):
         #     }],
         # }
 
+        #with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        try:
+            os.system(command)
+            #ydl.download([url])
+            if start and end:
+                print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
+                if environment == "local":
+                    ext = AudioClipExtractor('test.mp3', ffmpegpath)
+                elif environment == "heroku":
+                    ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
 
-
-
-
-        with 1 as xyz: #youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            try:
-                os.system(command)
-                #ydl.download([url])
-                if start and end:
-                    print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
-                    if environment == "local":
-                        ext = AudioClipExtractor('test.mp3', ffmpegpath)
-                    elif environment == "heroku":
-                        ext = AudioClipExtractor('test.mp3', 'vendor/ffmpeg/ffmpeg')
-
-                    specs = str(start) + " " + str(end)
-                    ext.extract_clips(specs)
-                    try:
-                        os.remove('res/mp3s/' + str(name).lower() + '.mp3')
-                    except:
-                        pass
-                    os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                    os.remove('test.mp3')
-                else:
-                    print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
-                    os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
-                if not temp:
-                    await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
-            except Exception as e:
-                await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
+                specs = str(start) + " " + str(end)
+                ext.extract_clips(specs)
+                try:
+                    os.remove('res/mp3s/' + str(name).lower() + '.mp3')
+                except:
+                    pass
+                os.rename('clip1.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+                os.remove('test.mp3')
+            else:
+                print("Youtubevideo runtergeladen von: " + str(ctx.author) + "[" + str(name) + "]")
+                os.rename('test.mp3', 'res/mp3s/' + str(name).lower() + '.mp3')
+            if not temp:
+                await ctx.send("YT Video " + str(url) + " runtergeladen unter dem Namen: " + str(name))
+        except Exception as e:
+            await ctx.send("Es ist ein: " + str(e.__class__) + " Fehler aufgetreten.")
         if not temp:
             filestate = (dropbox_upload(name))
             print(filestate)
