@@ -555,10 +555,12 @@ class Magie(commands.Cog):
                 else:
                     dinv[v] = [k]
             dinv2 = str(dinv).replace("],","\n")
-            teststring = "".join(list(filter(lambda ch: ch not in "{}[]'", str(dinv2))))
+            mp3statsoutput = "".join(list(filter(lambda ch: ch not in "{}[]'", str(dinv2))))
 
             print("MP3Stats von {} angefordert".format(ctx.author))
-            await ctx.send(teststring)
+            with open("temp_mp3stats.txt","w") as tempfile:
+                tempfile.write(mp3statsoutput)
+            await ctx.send(file=discord.File(r'temp_mp3stats.txt'))
 
     @commands.command(help="Unbenutze MP3s")
     async def unusedMP3(self, ctx):
