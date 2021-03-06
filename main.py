@@ -557,7 +557,7 @@ class Magie(commands.Cog):
             dinv2 = str(dinv).replace("],","\n")
             mp3statsoutput = "".join(list(filter(lambda ch: ch not in "{}[]'", str(dinv2))))
 
-            print("MP3Stats von {} angefordert".format(ctx.author))
+            print("MP3Stats von {} angef ordert".format(ctx.author))
             with open("temp_mp3stats.txt","w") as tempfile:
                 tempfile.write(mp3statsoutput)
             await ctx.send(file=discord.File(r'temp_mp3stats.txt'))
@@ -648,7 +648,14 @@ class Magie(commands.Cog):
         except Exception as e:
             print(e)
         dbx.files_delete_v2("/DiscordBotMp3s/{}.mp3".format(name))
-        await ctx.send("{} wurde gelöscht".format(name))
+
+        try:
+            await Magie.deleteFromMP3Stats(ctx=ctx, file=name)
+            await ctx.send(f"{name} wurde gelöscht und aus stats entfernt")
+        except:
+            await ctx.send("{} wurde gelöscht".format(name))
+
+
 
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
     async def Genozid(self, ctx, limit: int):
