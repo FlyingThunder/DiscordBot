@@ -561,6 +561,29 @@ class Magie(commands.Cog):
             with open("temp_mp3stats.txt","w") as tempfile:
                 tempfile.write(mp3statsoutput)
             await ctx.send(file=discord.File(r'temp_mp3stats.txt'))
+        elif len(args) == 1 and args[0] == "alt":
+            with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as g:
+                data = json.load(g)
+                namelist = []
+
+                for x in data:
+                    namelist.append(x["Audiofile"])
+
+                itemset = set(namelist)
+                itemdict = {}
+
+                for x in itemset:
+                    itemdict[x] = []
+
+                for x in data:
+                    if x["Audiofile"] in itemdict.keys():
+                        itemdict[x["Audiofile"]].append(x["Zeit"])
+
+                olddate_dict = {}
+                for x in itemdict:
+                    olddate_dict[x] = max(itemdict[x])
+
+            await ctx.send({k: v for k, v in sorted(olddate_dict.items(), key=lambda item: item[1])})
 
     @commands.command(help="Unbenutze MP3s")
     async def unusedMP3(self, ctx):
