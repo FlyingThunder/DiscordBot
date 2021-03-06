@@ -583,7 +583,11 @@ class Magie(commands.Cog):
                 for x in itemdict:
                     olddate_dict[x] = max(itemdict[x])
 
-            await ctx.send({k: v for k, v in sorted(olddate_dict.items(), key=lambda item: item[1])})
+            mp3stats_alt = {k: v for k, v in sorted(olddate_dict.items(), key=lambda item: item[1])}
+
+            with open("temp_mp3stats.txt","w") as tempfile:
+                tempfile.write(mp3stats_alt)
+            await ctx.send(file=discord.File(r'temp_mp3stats_alt.txt'))
 
     @commands.command(help="Unbenutze MP3s")
     async def unusedMP3(self, ctx):
