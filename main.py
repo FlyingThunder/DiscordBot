@@ -585,6 +585,8 @@ class Magie(commands.Cog):
 
             mp3stats_alt = {k: v for k, v in sorted(olddate_dict.items(), key=lambda item: item[1])}
 
+            mp3stats_alt = str(mp3stats_alt).replace(", ", "\n")
+
             with open("temp_mp3stats_alt.txt","w") as tempfile:
                 tempfile.write(str(mp3stats_alt))
             await ctx.send(file=discord.File(r'temp_mp3stats_alt.txt'))
