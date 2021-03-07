@@ -596,6 +596,9 @@ class Magie(commands.Cog):
             except:
                 print("temp_mp3stats_alt konnte nicht gelöscht werden")
 
+        elif len(args) == 1 and args[0] == "alle":
+            await ctx.send(file=discord.File(r'res/mp3s_stats.txt'))
+
     @commands.command(help="Unbenutze MP3s")
     async def unusedMP3(self, ctx):
         audiofiles_dropbox = []
