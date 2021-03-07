@@ -585,9 +585,14 @@ class Magie(commands.Cog):
 
             mp3stats_alt = {k: v for k, v in sorted(olddate_dict.items(), key=lambda item: item[1])}
 
-            with open("temp_mp3stats.txt","w") as tempfile:
+            with open("temp_mp3stats_alt.txt","w") as tempfile:
                 tempfile.write(str(mp3stats_alt))
             await ctx.send(file=discord.File(r'temp_mp3stats_alt.txt'))
+
+            try:
+                os.remove("temp_mp3stats_alt.txt")
+            except:
+                print("temp_mp3stats_alt konnte nicht gelöscht werden")
 
     @commands.command(help="Unbenutze MP3s")
     async def unusedMP3(self, ctx):
