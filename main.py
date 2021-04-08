@@ -32,7 +32,7 @@ tftwatcher = TftWatcher(tft_api_key)
 my_region = 'euw1'
 dbx = dropbox.Dropbox(dropbox_key)
 
-environment = "heroku" #local
+environment = "heroku" #local/heroku
 
 # bot command präfix
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
@@ -99,15 +99,15 @@ def my_hook(d):
     if d['status'] == 'finished':
         pass
 
-def champLookup(champId):
-    latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
-    static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
-    champ_dict = {}
-    for key in static_champ_list['data']:
-        row = static_champ_list['data'][key]
-        champ_dict[row['key']] = row['id']
-
-    return champ_dict[str(champId)]
+# def champLookup(champId):
+#     latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
+#     static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
+#     champ_dict = {}
+#     for key in static_champ_list['data']:
+#         row = static_champ_list['data'][key]
+#         champ_dict[row['key']] = row['id']
+#
+#     return champ_dict[str(champId)]
 
 def Mainbot():
     reddit = praw.Reddit(client_id=client_id_var,client_secret=client_secret_var,user_agent=user_agent_var)
@@ -129,100 +129,100 @@ def Mainbot():
             print("reddit_posts.json cleared")
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-def Bruder(name):
-    # latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
-    # static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
-    # champ_dict = {}
-    # for key in static_champ_list['data']:
-    #     row = static_champ_list['data'][key]
-    #     champ_dict[row['key']] = row['id']
+# def Bruder(name):
+#     # latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
+#     # static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
+#     # champ_dict = {}
+#     # for key in static_champ_list['data']:
+#     #     row = static_champ_list['data'][key]
+#     #     champ_dict[row['key']] = row['id']
+#
+#     me = watcher.summoner.by_name(my_region, name)
+#
+#     gametype = "Unknown"
+#     champion = None
+#     starttime = None
+#     status = None
+#
+#     try:
+#         playerinstance = watcher.spectator.by_summoner(my_region, me['id'])
+#         matchstart = str(playerinstance['gameStartTime'])[:-3]
+#         participants = playerinstance['participants']
+#
+#         for x in participants:
+#             if x['summonerName'] == name:
+#                 champion = champLookup(str(x['championId']))
+#
+#         print(playerinstance)
+#
+#         status = "Ingame"
+#         if str(playerinstance['gameType']) == "CUSTOM_GAME":
+#             gametype = "Customgame"
+#         else:
+#             if str(playerinstance['gameQueueConfigId']) == "400":
+#                 gametype = "5v5 Normal Draft"
+#             elif str(playerinstance['gameQueueConfigId']) == "420":
+#                 gametype = "5v5 Ranked Solo/Duo"
+#             elif str(playerinstance['gameQueueConfigId']) == "440":
+#                 gametype = "5v5 Ranked Flex"
+#             elif str(playerinstance['gameQueueConfigId']) == "450":
+#                 gametype = "ARAM"
+#             elif str(playerinstance['gameQueueConfigId']) == "700":
+#                 gametype = "Clash"
+#             else:
+#                 gametype = "Unbekannt"
+#
+#
+#
+#         starttime = datetime.fromtimestamp(int(matchstart)).strftime('%Y-%m-%d %H:%M:%S')
+#
+#     except:
+#         status = "Not ingame"
+#     return (name, status, gametype, champion, starttime)
 
-    me = watcher.summoner.by_name(my_region, name)
-
-    gametype = "Unknown"
-    champion = None
-    starttime = None
-    status = None
-
-    try:    #TODO: Doesnt work in custom games
-        playerinstance = watcher.spectator.by_summoner(my_region, me['id'])
-        matchstart = str(playerinstance['gameStartTime'])[:-3]
-        participants = playerinstance['participants']
-
-        for x in participants:
-            if x['summonerName'] == name:
-                champion = champLookup(str(x['championId']))
-
-        print(playerinstance)
-
-        status = "Ingame"
-        if str(playerinstance['gameType']) == "CUSTOM_GAME":
-            gametype = "Customgame"
-        else:
-            if str(playerinstance['gameQueueConfigId']) == "400":
-                gametype = "5v5 Normal Draft"
-            elif str(playerinstance['gameQueueConfigId']) == "420":
-                gametype = "5v5 Ranked Solo/Duo"
-            elif str(playerinstance['gameQueueConfigId']) == "440":
-                gametype = "5v5 Ranked Flex"
-            elif str(playerinstance['gameQueueConfigId']) == "450":
-                gametype = "ARAM"
-            elif str(playerinstance['gameQueueConfigId']) == "700":
-                gametype = "Clash"
-            else:
-                gametype = "Unbekannt"
-
-
-
-        starttime = datetime.fromtimestamp(int(matchstart)).strftime('%Y-%m-%d %H:%M:%S')
-
-    except:
-        status = "Not ingame"
-    return (name, status, gametype, champion, starttime)
-
-def Last_10_games(name):
-    me = watcher.summoner.by_name(my_region, name)
-    matches = watcher.match.matchlist_by_account(my_region, me['accountId'])
-    x = matches['matches'][:10]
-    matchlist = []
-    for a in x:
-        matchlist.append(watcher.match.by_id(my_region, a['gameId']))
-
-    output = []
-    letzte10embed = discord.Embed(title='Jason Statistikschinken')
-
-    for y in matchlist:
-        print("New game")
-        for x in y['participantIdentities']:
-            if x['player']['summonerName'] == name:
-                participantId = x['participantId']
-                for z in y['participants']:
-                    if z['participantId'] == participantId:
-                        arguments = []
-                        arguments.append(champLookup(z['championId']))
-                        if z['stats']['win'] == False:
-                            arguments.append("Loss")
-                        elif z['stats']['win'] == True:
-                            arguments.append("Win")
-                        arguments.append(str(z['stats']['kills']) + "/" + str(z['stats']['deaths']) + "/" + str(
-                            z['stats']['assists']))
-                        if str(y['queueId']) == "400":
-                            arguments.append("5v5 Normal Draft")
-                        if str(y['queueId']) == "420":
-                            arguments.append("5v5 Ranked Solo/Duo")
-                        if str(y['queueId']) == "440":
-                            arguments.append("5v5 Ranked Flex")
-                        if str(y['queueId']) == "450":
-                            arguments.append("ARAM")
-                        if str(y['queueId']) == "700":
-                            arguments.append("Clash")
-                        if z['stats']['win'] == False:
-                            letzte10embed.add_field(name=":monkey:", value=str(arguments), inline=False)
-                        elif z['stats']['win'] == True:
-                            letzte10embed.add_field(name=":star_of_david:", value=str(arguments), inline=False)
-
-
-    return(letzte10embed)
+# def Last_10_games(name):
+#     me = watcher.summoner.by_name(my_region, name)
+#     matches = watcher.match.matchlist_by_account(my_region, me['accountId'])
+#     x = matches['matches'][:10]
+#     matchlist = []
+#     for a in x:
+#         matchlist.append(watcher.match.by_id(my_region, a['gameId']))
+#
+#     output = []
+#     letzte10embed = discord.Embed(title='Jason Statistikschinken')
+#
+#     for y in matchlist:
+#         print("New game")
+#         for x in y['participantIdentities']:
+#             if x['player']['summonerName'] == name:
+#                 participantId = x['participantId']
+#                 for z in y['participants']:
+#                     if z['participantId'] == participantId:
+#                         arguments = []
+#                         arguments.append(champLookup(z['championId']))
+#                         if z['stats']['win'] == False:
+#                             arguments.append("Loss")
+#                         elif z['stats']['win'] == True:
+#                             arguments.append("Win")
+#                         arguments.append(str(z['stats']['kills']) + "/" + str(z['stats']['deaths']) + "/" + str(
+#                             z['stats']['assists']))
+#                         if str(y['queueId']) == "400":
+#                             arguments.append("5v5 Normal Draft")
+#                         if str(y['queueId']) == "420":
+#                             arguments.append("5v5 Ranked Solo/Duo")
+#                         if str(y['queueId']) == "440":
+#                             arguments.append("5v5 Ranked Flex")
+#                         if str(y['queueId']) == "450":
+#                             arguments.append("ARAM")
+#                         if str(y['queueId']) == "700":
+#                             arguments.append("Clash")
+#                         if z['stats']['win'] == False:
+#                             letzte10embed.add_field(name=":monkey:", value=str(arguments), inline=False)
+#                         elif z['stats']['win'] == True:
+#                             letzte10embed.add_field(name=":star_of_david:", value=str(arguments), inline=False)
+#
+#
+#     return(letzte10embed)
 
 async def Labern(message, audiofile, volume):
     #if os.path.exists("res/mp3s/{}.mp3".format(audiofile)):
@@ -392,21 +392,43 @@ class Physik(commands.Cog):
             file.write(response.content)
 
         #roll random 25/75 virtue / affliction
-        virtues = ["stalwart","courageous","focused","powerful","vigorous"]
-        affliction = ["fearful","paranoid","selfish","masochistic","abusive","hopeless","irrational"]
+        virtues = {"stalwart": "Many fall in the face of chaos; but not this one, not today.",
+                   "courageous": "A moment of valor shines brightest against a backdrop of despair.",
+                   "focused": "A moment of clarity in the eye of the storm...",
+                   "powerful": "Anger is power - unleash it!",
+                   "vigorous": "Adversity can foster hope, and resilience."}
 
-        positiv_negativ = random.randint(1,100)
+        affliction = {"fearful": "Fear and frailty finally claim their due.",
+                      "paranoid": "The walls close in, the shadows whisper of conspiracy!",
+                      "selfish": "Self-preservation is paramount - at any cost!",
+                      "masochistic": "Those who covet injury find it in no short supply.",
+                      "abusive": "Frustration and fury, more destructive than a hundred cannons.",
+                      "hopeless": "There can be no hope in this hell, no hope at all.",
+                      "irrational": "Reeling, gasping, taken over the edge into madness!"}
+
+        vlist = list(virtues.items())
+        alist = list(affliction.items())
+
+        positiv_negativ = random.randint(1, 100)
         if positiv_negativ < 25:
-            image = "res/pillow/"+str(random.choice(virtues))+".jpg"
+            randresult = random.choice(vlist)
+            image = "res/pillow/" + str(randresult[0]) + ".jpg"
+            text = randresult[1]
+
         elif positiv_negativ >= 25:
-            image = "res/pillow/"+str(random.choice(affliction))+".jpg"
+            randresult = random.choice(alist)
+            image = "res/pillow/" + str(randresult[0]) + ".jpg"
+            text = randresult[1]
         else:
             image = "focused.jpg"
+            text = "A moment of clarity in the eye of the storm..."
             print("RandInt failed")
 
-        with Image.open("pfp.webp") as im:
+        print(image + " + " + text)
+
+        with Image.open("res/pillow/temp_pfp.png") as im:
             im_resized = im.resize((350, 350))
-            im_resized.save("pfp.webp", "webp")
+            im_resized.save("res/pillow/temp_pfp.png", "png")
 
         background = Image.open(image)
         overlay = Image.open("res/pillow/temp_pfp.png")
@@ -417,6 +439,7 @@ class Physik(commands.Cog):
 
 
         await ctx.send(file=discord.File(r"res/pillow/temp_result.png"))
+        await ctx.send(text)
 
 
         try:
