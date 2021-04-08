@@ -385,7 +385,11 @@ class Physik(commands.Cog):
     async def Random(self, ctx, argument=1):
         file = random.choice(os.listdir("res/mp3s/"))
         cutfile = file.replace(".mp3","")
-        await Labern(audiofile=cutfile, message=ctx.message, volume=argument)
+
+        if argument == "random":
+            volume = random.randint(0,50)
+
+        await Labern(audiofile=cutfile, message=ctx.message, volume=volume)
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
     async def Sag(self, ctx, argument=None, *args):
@@ -857,13 +861,11 @@ async def uploadMP3stats(ctx=None):
             await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
 
-@bot.command(name="id1")
-async def id1(ctx, user: discord.User):
-    await ctx.send(user.id)
-
-@bot.command(name="id2")
-async def id2(ctx):
-    await ctx.send(ctx.author.id)
+@bot.command(name="pfp")
+async def pfp(ctx):
+    author = ctx.message.author
+    pfp = author.avatar_url
+    await ctx.send(str(pfp))
 
 @bot.command()
 async def downloadMP3stats(ctx):
