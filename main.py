@@ -420,7 +420,7 @@ class Physik(commands.Cog):
             image = "res/pillow/" + str(randresult[0]) + ".jpg"
             text = randresult[1]
         else:
-            image = "focused.jpg"
+            image = "res/pillow/focused.jpg"
             text = "A moment of clarity in the eye of the storm..."
             print("RandInt failed")
 
