@@ -409,7 +409,8 @@ class Physik(commands.Cog):
         vlist = list(virtues.items())
         alist = list(affliction.items())
 
-        positiv_negativ = random.randint(1, 100)
+        positiv_negativ = random.randint(0, 100)
+        print(positiv_negativ)
         if positiv_negativ < 25:
             randresult = random.choice(vlist)
             image = "res/pillow/" + str(randresult[0]) + ".jpg"
@@ -434,7 +435,7 @@ class Physik(commands.Cog):
         overlay = Image.open("res/pillow/temp_pfp.png")
         background = background.convert("RGBA")
         overlay = overlay.convert("RGBA")
-        new_img = Image.blend(background, overlay, 0.6)
+        new_img = Image.blend(background, overlay, 0.5)
         new_img.save("res/pillow/temp_result.png", "PNG")
 
 
