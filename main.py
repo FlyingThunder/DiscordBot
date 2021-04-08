@@ -15,6 +15,7 @@ import dropbox
 from collections import Counter
 import random
 import requests
+from PIL import Image
 
 # .env laden
 load_dotenv()
@@ -329,58 +330,102 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="stats vong letzte 10 spiele her")
-    async def Letzte10(self, ctx, argument):
-        await ctx.send('', embed=Last_10_games(name=argument))
+    # @commands.command(help="stats vong letzte 10 spiele her")
+    # async def Letzte10(self, ctx, argument):
+    #     await ctx.send('', embed=Last_10_games(name=argument))
 
-    @commands.command(help="TFT Testshit")
-    async def TFT(self, ctx, name, count=1):
-        testvar = tftwatcher.summoner.by_name("euw1", name)
-        puuid = testvar['puuid']
-        match = tftwatcher.match.by_puuid("europe", puuid, count)
-        x = 0
-        while x < count:
-            matchdetail = tftwatcher.match.by_id("europe", match[x])
-            index_of_summoner = matchdetail['metadata']['participants'].index(puuid)
-            metadata_of_summoner = matchdetail['info']['participants'][index_of_summoner]
-            rounds = metadata_of_summoner['last_round']
-            level = metadata_of_summoner['level']
-            place = metadata_of_summoner['placement']
-            killed = metadata_of_summoner['players_eliminated']
-            total_damage = metadata_of_summoner['total_damage_to_players']
-            champions = []
-            for z in metadata_of_summoner['units']:
-                champions.append({z['character_id']: z['items']})
-            traits = []
-            x += 1
-            for y in metadata_of_summoner['traits']:
-                traits.append({y['name']: y['num_units']})
-            match_info_list = {'Platz': place,
-                               'Level': level,
-                               'Runden': rounds,
-                               'Killed': killed,
-                               'Damage': total_damage,
-                               'Traits': traits,
-                               'Champions': champions}
+    # @commands.command(help="TFT Testshit")
+    # async def TFT(self, ctx, name, count=1):
+    #     testvar = tftwatcher.summoner.by_name("euw1", name)
+    #     puuid = testvar['puuid']
+    #     match = tftwatcher.match.by_puuid("europe", puuid, count)
+    #     x = 0
+    #     while x < count:
+    #         matchdetail = tftwatcher.match.by_id("europe", match[x])
+    #         index_of_summoner = matchdetail['metadata']['participants'].index(puuid)
+    #         metadata_of_summoner = matchdetail['info']['participants'][index_of_summoner]
+    #         rounds = metadata_of_summoner['last_round']
+    #         level = metadata_of_summoner['level']
+    #         place = metadata_of_summoner['placement']
+    #         killed = metadata_of_summoner['players_eliminated']
+    #         total_damage = metadata_of_summoner['total_damage_to_players']
+    #         champions = []
+    #         for z in metadata_of_summoner['units']:
+    #             champions.append({z['character_id']: z['items']})
+    #         traits = []
+    #         x += 1
+    #         for y in metadata_of_summoner['traits']:
+    #             traits.append({y['name']: y['num_units']})
+    #         match_info_list = {'Platz': place,
+    #                            'Level': level,
+    #                            'Runden': rounds,
+    #                            'Killed': killed,
+    #                            'Damage': total_damage,
+    #                            'Traits': traits,
+    #                            'Champions': champions}
+    #
+    #         with open('res/items.json') as json_file:
+    #             data = json.load(json_file)
+    #             itemdict = {}
+    #             for b in data:
+    #                 itemdict[str(b['id'])] = str(b['name'])
+    #
+    #         newchamplist = []
+    #         for a in match_info_list['Champions']:
+    #             for key, value in a.items():
+    #                 newitemlist = []
+    #                 if value:
+    #                     for c in value:
+    #                         newitemlist.append(itemdict[str(c)])
+    #                 newchamplist.append({key: newitemlist})
+    #
+    #         match_info_list['Champions'] = newchamplist
+    #         print("Letzte {} Matches für {} von {} angefordert".format(count,name,ctx.author))
+    #         await ctx.send(match_info_list)
+    @commands.command(help="Teste deinen Glauben")
+    async def Resolve(self, ctx):
 
-            with open('res/items.json') as json_file:
-                data = json.load(json_file)
-                itemdict = {}
-                for b in data:
-                    itemdict[str(b['id'])] = str(b['name'])
+        author = ctx.message.author
+        pfp = author.avatar_url
+        response = requests.get(pfp)
+        file = open("res/pillow/temp_pfp.png", "wb")
+        file.write(response.content)
+        file.close()
 
-            newchamplist = []
-            for a in match_info_list['Champions']:
-                for key, value in a.items():
-                    newitemlist = []
-                    if value:
-                        for c in value:
-                            newitemlist.append(itemdict[str(c)])
-                    newchamplist.append({key: newitemlist})
+        #roll random 25/75 virtue / affliction
+        virtues = ["stalwart","courageous","focused","powerful","vigorous"]
+        affliction = ["fearful","paranoid","selfish","masochistic","abusive","hopeless","irrational"]
 
-            match_info_list['Champions'] = newchamplist
-            print("Letzte {} Matches für {} von {} angefordert".format(count,name,ctx.author))
-            await ctx.send(match_info_list)
+        positiv_negativ = random.randint(1,100)
+        if positiv_negativ < 25:
+            image = "res/pillow/"+str(random.choice(virtues))+".jpg"
+        elif positiv_negativ >= 25:
+            image = "res/pillow/"+str(random.choice(affliction))+".jpg"
+        else:
+            image = "focused.jpg"
+            print("RandInt failed")
+
+        with Image.open("pfp.webp") as im:
+            im_resized = im.resize((350, 350))
+            im_resized.save("pfp.webp", "webp")
+
+        background = Image.open(image)
+        overlay = Image.open("res/pillow/temp_pfp.png")
+        background = background.convert("RGBA")
+        overlay = overlay.convert("RGBA")
+        new_img = Image.blend(background, overlay, 0.6)
+        new_img.save("res/pillow/temp_result.png", "PNG")
+
+
+        await ctx.send(file=discord.File(r"res/pillow/temp_result.png"))
+
+
+        try:
+            os.remove("res/pillow/temp_pfp.png")
+            os.remove("res/pillow/temp_result.png")
+        except:
+            print("File does not exist")
+
 
     @commands.command(help="Volume dazu angeben")
     async def Random(self, ctx, argument=1):
@@ -512,24 +557,24 @@ class Physik(commands.Cog):
 
 
 
-    @commands.command(help="SEID IHR BEREIT KINDER?")
-    async def Squad(self, ctx):
-        squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
-
-        mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
-                       "Andrê": "Azzazzin", "Borenz": "SuiZiDaL28"}
-        for x in mongos_list.keys():
-            y = mongos_list[x]
-            data = Bruder(name=y)
-            print(data)
-            if data[1] == "Ingame":
-                playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
-            else:
-                playerinfo = "ist nicht ingame"
-            squad_info.add_field(name=str(x), value=playerinfo, inline=False)
-
-
-        await ctx.send('', embed=squad_info)
+    # @commands.command(help="SEID IHR BEREIT KINDER?")
+    # async def Squad(self, ctx):
+    #     squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
+    #
+    #     mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
+    #                    "Andrê": "Azzazzin", "Borenz": "SuiZiDaL28"}
+    #     for x in mongos_list.keys():
+    #         y = mongos_list[x]
+    #         data = Bruder(name=y)
+    #         print(data)
+    #         if data[1] == "Ingame":
+    #             playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
+    #         else:
+    #             playerinfo = "ist nicht ingame"
+    #         squad_info.add_field(name=str(x), value=playerinfo, inline=False)
+    #
+    #
+    #     await ctx.send('', embed=squad_info)
 
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
@@ -651,9 +696,9 @@ class Magie(commands.Cog):
                 if str(x["Audiofile"] + ".mp3") not in files:
                     await ctx.send(f"Datei {x['Audiofile']} aus MP3Stats gibt es nicht!")
 
-    @commands.command(help="Testcommand")
-    async def showString(self, ctx):
-        print(ctx.message)
+    # @commands.command(help="Testcommand")
+    # async def showString(self, ctx):
+    #     print(ctx.message)
 
 
     @commands.command(help="Zeigt alle mp3s an")
@@ -862,22 +907,6 @@ async def uploadMP3stats(ctx=None):
             await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
 
-@bot.command(name="pfp")
-async def pfp(ctx, argument):
-    author = ctx.message.author
-    pfp = author.avatar_url
-
-    if argument == "dl":
-        response = requests.get(pfp)
-        file = open("sample_image.png", "wb")
-        file.write(response.content)
-        file.close()
-        await ctx.send(file=discord.File(r'sample_image.png'))
-        try:
-            os.remove("sample_image.png")
-        except:
-            print("File does not exist")
-    await ctx.send(str(pfp))
 
 @bot.command()
 async def downloadMP3stats(ctx):
