@@ -14,6 +14,7 @@ from audioclipextractor import AudioClipExtractor
 import dropbox
 from collections import Counter
 import random
+import requests
 
 # .env laden
 load_dotenv()
@@ -862,9 +863,20 @@ async def uploadMP3stats(ctx=None):
         print("MP3stats auf Dropbox hochgeladen")
 
 @bot.command(name="pfp")
-async def pfp(ctx):
+async def pfp(ctx, argument):
     author = ctx.message.author
     pfp = author.avatar_url
+
+    if argument == "dl":
+        response = requests.get(pfp)
+        file = open("sample_image.png", "wb")
+        file.write(response.content)
+        file.close()
+        await ctx.send(file=discord.File(r'sample_image.png'))
+        try:
+            os.remove("sample_image.png")
+        except:
+            print("File does not exist")
     await ctx.send(str(pfp))
 
 @bot.command()
