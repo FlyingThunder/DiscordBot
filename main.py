@@ -388,9 +388,8 @@ class Physik(commands.Cog):
         author = ctx.message.author
         pfp = author.avatar_url
         response = requests.get(pfp)
-        file = open("res/pillow/temp_pfp.png", "wb")
-        file.write(response.content)
-        file.close()
+        with open("res/pillow/temp_pfp.png", "wb") as file:
+            file.write(response.content)
 
         #roll random 25/75 virtue / affliction
         virtues = ["stalwart","courageous","focused","powerful","vigorous"]
