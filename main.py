@@ -37,7 +37,7 @@ environment = "heroku" #local/heroku
 # bot command präfix
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command("help")
-ffmpegpath = "res/ffmpeg.exe"
+ffmpegpath = "ffmpeg.exe"
 startTime = datetime.now()
 print(startTime)
 
