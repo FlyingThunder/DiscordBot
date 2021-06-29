@@ -55,8 +55,6 @@ def dropbox_upload(filename):
         dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
         return "upload"
     else:
-        # print(os.path.getsize('res/mp3s/{}'.format(x)))
-        # print(dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size)
         if os.path.getsize('res/mp3s/{}'.format(x.lower())) != dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
             print("Datei vorhanden, Metadaten nicht identisch. Überschreibe auf DropBox.")
             f = open('res/mp3s/{}'.format(x.lower()), 'rb')
@@ -94,20 +92,9 @@ class MyLogger(object):
     def error(self, msg):
         print(msg)
 
-
 def my_hook(d):
     if d['status'] == 'finished':
         pass
-
-# def champLookup(champId):
-#     latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
-#     static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
-#     champ_dict = {}
-#     for key in static_champ_list['data']:
-#         row = static_champ_list['data'][key]
-#         champ_dict[row['key']] = row['id']
-#
-#     return champ_dict[str(champId)]
 
 def Mainbot():
     reddit = praw.Reddit(client_id=client_id_var,client_secret=client_secret_var,user_agent=user_agent_var)
@@ -129,103 +116,7 @@ def Mainbot():
             print("reddit_posts.json cleared")
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-# def Bruder(name):
-#     # latest = watcher.data_dragon.versions_for_region(my_region)['n']['champion']
-#     # static_champ_list = watcher.data_dragon.champions(latest, False, 'en_US')
-#     # champ_dict = {}
-#     # for key in static_champ_list['data']:
-#     #     row = static_champ_list['data'][key]
-#     #     champ_dict[row['key']] = row['id']
-#
-#     me = watcher.summoner.by_name(my_region, name)
-#
-#     gametype = "Unknown"
-#     champion = None
-#     starttime = None
-#     status = None
-#
-#     try:
-#         playerinstance = watcher.spectator.by_summoner(my_region, me['id'])
-#         matchstart = str(playerinstance['gameStartTime'])[:-3]
-#         participants = playerinstance['participants']
-#
-#         for x in participants:
-#             if x['summonerName'] == name:
-#                 champion = champLookup(str(x['championId']))
-#
-#         print(playerinstance)
-#
-#         status = "Ingame"
-#         if str(playerinstance['gameType']) == "CUSTOM_GAME":
-#             gametype = "Customgame"
-#         else:
-#             if str(playerinstance['gameQueueConfigId']) == "400":
-#                 gametype = "5v5 Normal Draft"
-#             elif str(playerinstance['gameQueueConfigId']) == "420":
-#                 gametype = "5v5 Ranked Solo/Duo"
-#             elif str(playerinstance['gameQueueConfigId']) == "440":
-#                 gametype = "5v5 Ranked Flex"
-#             elif str(playerinstance['gameQueueConfigId']) == "450":
-#                 gametype = "ARAM"
-#             elif str(playerinstance['gameQueueConfigId']) == "700":
-#                 gametype = "Clash"
-#             else:
-#                 gametype = "Unbekannt"
-#
-#
-#
-#         starttime = datetime.fromtimestamp(int(matchstart)).strftime('%Y-%m-%d %H:%M:%S')
-#
-#     except:
-#         status = "Not ingame"
-#     return (name, status, gametype, champion, starttime)
-
-# def Last_10_games(name):
-#     me = watcher.summoner.by_name(my_region, name)
-#     matches = watcher.match.matchlist_by_account(my_region, me['accountId'])
-#     x = matches['matches'][:10]
-#     matchlist = []
-#     for a in x:
-#         matchlist.append(watcher.match.by_id(my_region, a['gameId']))
-#
-#     output = []
-#     letzte10embed = discord.Embed(title='Jason Statistikschinken')
-#
-#     for y in matchlist:
-#         print("New game")
-#         for x in y['participantIdentities']:
-#             if x['player']['summonerName'] == name:
-#                 participantId = x['participantId']
-#                 for z in y['participants']:
-#                     if z['participantId'] == participantId:
-#                         arguments = []
-#                         arguments.append(champLookup(z['championId']))
-#                         if z['stats']['win'] == False:
-#                             arguments.append("Loss")
-#                         elif z['stats']['win'] == True:
-#                             arguments.append("Win")
-#                         arguments.append(str(z['stats']['kills']) + "/" + str(z['stats']['deaths']) + "/" + str(
-#                             z['stats']['assists']))
-#                         if str(y['queueId']) == "400":
-#                             arguments.append("5v5 Normal Draft")
-#                         if str(y['queueId']) == "420":
-#                             arguments.append("5v5 Ranked Solo/Duo")
-#                         if str(y['queueId']) == "440":
-#                             arguments.append("5v5 Ranked Flex")
-#                         if str(y['queueId']) == "450":
-#                             arguments.append("ARAM")
-#                         if str(y['queueId']) == "700":
-#                             arguments.append("Clash")
-#                         if z['stats']['win'] == False:
-#                             letzte10embed.add_field(name=":monkey:", value=str(arguments), inline=False)
-#                         elif z['stats']['win'] == True:
-#                             letzte10embed.add_field(name=":star_of_david:", value=str(arguments), inline=False)
-#
-#
-#     return(letzte10embed)
-
 async def Labern(message, audiofile, volume):
-    #if os.path.exists("res/mp3s/{}.mp3".format(audiofile)):
     if volume is None:
         voice_channel = message.author.voice.channel
         vc = await voice_channel.connect()
@@ -258,14 +149,6 @@ async def Labern(message, audiofile, volume):
         for x in bot.voice_clients:
             if (x.guild == message.guild):
                 await x.disconnect()
-    #else:
-    #    return("Exception: File not found")
-
-
-# @bot.command(name="testname", help="testdescription")
-# async def Test(ctx):
-#     await ctx.send("Test")
-
 
 @bot.command(help="zeigt genau das hier an.")
 @commands.has_permissions(add_reactions=True,embed_links=True)
@@ -330,58 +213,6 @@ class Physik(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # @commands.command(help="stats vong letzte 10 spiele her")
-    # async def Letzte10(self, ctx, argument):
-    #     await ctx.send('', embed=Last_10_games(name=argument))
-
-    # @commands.command(help="TFT Testshit")
-    # async def TFT(self, ctx, name, count=1):
-    #     testvar = tftwatcher.summoner.by_name("euw1", name)
-    #     puuid = testvar['puuid']
-    #     match = tftwatcher.match.by_puuid("europe", puuid, count)
-    #     x = 0
-    #     while x < count:
-    #         matchdetail = tftwatcher.match.by_id("europe", match[x])
-    #         index_of_summoner = matchdetail['metadata']['participants'].index(puuid)
-    #         metadata_of_summoner = matchdetail['info']['participants'][index_of_summoner]
-    #         rounds = metadata_of_summoner['last_round']
-    #         level = metadata_of_summoner['level']
-    #         place = metadata_of_summoner['placement']
-    #         killed = metadata_of_summoner['players_eliminated']
-    #         total_damage = metadata_of_summoner['total_damage_to_players']
-    #         champions = []
-    #         for z in metadata_of_summoner['units']:
-    #             champions.append({z['character_id']: z['items']})
-    #         traits = []
-    #         x += 1
-    #         for y in metadata_of_summoner['traits']:
-    #             traits.append({y['name']: y['num_units']})
-    #         match_info_list = {'Platz': place,
-    #                            'Level': level,
-    #                            'Runden': rounds,
-    #                            'Killed': killed,
-    #                            'Damage': total_damage,
-    #                            'Traits': traits,
-    #                            'Champions': champions}
-    #
-    #         with open('res/items.json') as json_file:
-    #             data = json.load(json_file)
-    #             itemdict = {}
-    #             for b in data:
-    #                 itemdict[str(b['id'])] = str(b['name'])
-    #
-    #         newchamplist = []
-    #         for a in match_info_list['Champions']:
-    #             for key, value in a.items():
-    #                 newitemlist = []
-    #                 if value:
-    #                     for c in value:
-    #                         newitemlist.append(itemdict[str(c)])
-    #                 newchamplist.append({key: newitemlist})
-    #
-    #         match_info_list['Champions'] = newchamplist
-    #         print("Letzte {} Matches für {} von {} angefordert".format(count,name,ctx.author))
-    #         await ctx.send(match_info_list)
     @commands.command(help="Teste deinen Glauben")
     async def Resolve(self, ctx):
 
@@ -568,36 +399,6 @@ class Physik(commands.Cog):
         else:
             await ctx.send("Dumm oder was?")
 
-    # @Sag.error
-    # async def Sag_handler(self, ctx, error):
-    #     print("Exception /// Errorhandler" + str(error))
-    #
-    #     if "FileNotFoundError" in str(error):
-    #         print("Datei konnte nicht gefunden werden")
-    #         await ctx.send("Datei konnte nicht gefunden werden")
-    #     elif "'NoneType' object has no attribute 'channel'" in str(error):
-    #         await ctx.send("Such dir erstmal nen Audiokanal, du Otto")
-
-
-
-    # @commands.command(help="SEID IHR BEREIT KINDER?")
-    # async def Squad(self, ctx):
-    #     squad_info = discord.Embed(title='MELDET EUCH ZUM DIENST!',description='BUBENSTATUS')
-    #
-    #     mongos_list = {"Peschko": "DiggaShishaBar", "Simon": "HiSim", "Felix": "Letax", "Johann": "Gammanus",
-    #                    "Andrê": "Azzazzin", "Borenz": "SuiZiDaL28"}
-    #     for x in mongos_list.keys():
-    #         y = mongos_list[x]
-    #         data = Bruder(name=y)
-    #         print(data)
-    #         if data[1] == "Ingame":
-    #             playerinfo = "ist in einem {} mit {} seit {} auf dem Account {}".format(data[2],data[3],data[4].split(" ")[1],data[0])
-    #         else:
-    #             playerinfo = "ist nicht ingame"
-    #         squad_info.add_field(name=str(x), value=playerinfo, inline=False)
-    #
-    #
-    #     await ctx.send('', embed=squad_info)
 
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
@@ -678,7 +479,6 @@ class Magie(commands.Cog):
         dropbox_filescan = dbx.files_list_folder("/discordbotmp3s")
         for x in dropbox_filescan.entries:
             audiofiles_dropbox.append(x.name)
-        #print(audiofiles_dropbox)
         unusedmp3list = []
         with open('res/mp3s_stats.txt', 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -718,11 +518,6 @@ class Magie(commands.Cog):
             for x in data:
                 if str(x["Audiofile"] + ".mp3") not in files:
                     await ctx.send(f"Datei {x['Audiofile']} aus MP3Stats gibt es nicht!")
-
-    # @commands.command(help="Testcommand")
-    # async def showString(self, ctx):
-    #     print(ctx.message)
-
 
     @commands.command(help="Zeigt alle mp3s an")
     async def mp3s(self, ctx):
@@ -765,8 +560,6 @@ class Magie(commands.Cog):
         except:
             await ctx.send("{} wurde gelöscht".format(name))
 
-
-
     @commands.command(help="löscht letzte x Nachrichten im Kanal")
     async def Genozid(self, ctx, limit: int):
         await ctx.channel.purge(limit=limit)
@@ -793,8 +586,6 @@ class Magie(commands.Cog):
 
         print(f"Befehl [add_youtubeaudio] wird ausgeführt mit variablen {ctx}, {url}, {name}, {start}, {end}, {temp}")
 
-        #command = f'youtube-dl.exe {url} -f 140 --audio-format "mp3" --output "test.mp3"'
-
         ydl_opts = {
             'outtmpl': 'test.mp3',
             'format': 'bestaudio/best',
@@ -809,7 +600,6 @@ class Magie(commands.Cog):
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
-                #os.system(command)
                 ydl.download([url])
                 if start and end:
                     print("Youtubevideo runtergeladen von:" + str(ctx.author) + "[" + str(name) + " " + str(start) + " " + str(end) + "]")
@@ -884,7 +674,6 @@ async def on_ready():
         if guild.id == 262510619503230976: #Shitheads
             for channel in guild.channels:
                 if channel.name == "general":
-                    #await channel.send("mp3 Dateien wurden von Dropbox runtergeladen.")
                     pass
         if guild.id == 733248970771660822: #Bot Test
             for channel in guild.channels:
@@ -917,7 +706,6 @@ async def ytdlverbose(ctx, url):
         if y:
             await ctx.send(y)
 
-
 @bot.command()
 async def uploadMP3stats(ctx=None):
     with open('res/mp3s_stats.txt', 'rb') as g:
@@ -929,7 +717,6 @@ async def uploadMP3stats(ctx=None):
         if ctx:
             await ctx.send("MP3stats auf Dropbox hochgeladen")
         print("MP3stats auf Dropbox hochgeladen")
-
 
 @bot.command()
 async def downloadMP3stats(ctx):
@@ -946,13 +733,9 @@ async def downloadMP3stats(ctx):
 async def on_message(message):
     if message.author == bot.user:
         return
-    if "mama mia" in str(message.content).lower():
-        await message.channel.send(file=discord.File('res/mamamia.png'))
     await bot.process_commands(message)
     if "donger" in str(message.content).lower():
         await message.channel.send("ヽ༼ຈل͜ຈ༽ﾉ")
-
-
 
 bot.add_cog(Physik(bot))
 bot.add_cog(Magie(bot))
