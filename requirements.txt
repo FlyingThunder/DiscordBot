@@ -5,7 +5,7 @@ audioclipextractor==0.3.0
 certifi==2020.12.5
 cffi==1.14.5
 chardet==3.0.4
-discord.py==1.6.0
+discord.py==1.7.3
 dropbox==11.3.0
 ez-setup==0.9
 idna==2.10
