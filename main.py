@@ -53,6 +53,7 @@ def dropbox_upload(filename):
         f = open('res/mp3s/{}'.format(x.lower()), 'rb')
         print("Datei noch nicht vorhanden. Lade nach DropBox hoch.")
         dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+        f.close()
         return "upload"
     else:
         if os.path.getsize('res/mp3s/{}'.format(x.lower())) != dbx.files_get_metadata("/discordbotmp3s/{}".format(x)).size:
@@ -60,11 +61,13 @@ def dropbox_upload(filename):
             f = open('res/mp3s/{}'.format(x.lower()), 'rb')
             dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+            f.close()
             return "overwrite"
         else:
             f = open('res/mp3s/{}'.format(x.lower()), 'rb')
             dbx.files_delete_v2("/DiscordBotMp3s/{}".format(x))
             dbx.files_upload(f.read(), "/DiscordBotMp3s/{}".format(x))
+            f.close()
             return "upload_same"
 
 def dropbox_download():
@@ -121,7 +124,9 @@ async def Labern(message, audiofile, volume):
         voice_channel = message.author.voice.channel
         vc = await voice_channel.connect()
         print(f"spiele audiofile {audiofile.lower()} ab")
-        vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
+
+        vc.play(discord.FFmpegOpusAudio('res/mp3s/{}.mp3'.format(audiofile.lower()), bitrate=64, executable='ffmpeg.exe', pipe=False))
+
         while vc.is_playing() == True:
             pass
         else:
