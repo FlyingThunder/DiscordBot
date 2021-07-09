@@ -6,9 +6,7 @@ import praw
 import json
 import sys
 from datetime import datetime
-from riotwatcher import LolWatcher, TftWatcher
 import urllib.request
-#import youtube_dlc
 import youtube_dl
 from audioclipextractor import AudioClipExtractor
 import dropbox
@@ -27,9 +25,7 @@ riot_api_key = os.getenv("riot_api_key")
 dropbox_key = os.getenv("dropbox_key")
 tft_api_key = os.getenv("tft_api_key")
 
-watcher = LolWatcher(riot_api_key)
-tftwatcher = TftWatcher(tft_api_key)
-my_region = 'euw1'
+
 dbx = dropbox.Dropbox(dropbox_key)
 
 environment = "heroku" #local/heroku
@@ -119,41 +115,30 @@ def Mainbot():
             print("reddit_posts.json cleared")
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-async def Labern(message, audiofile, volume):
+async def Labern(audiofile, volume, ctx):
     if volume is None:
-        voice_channel = message.author.voice.channel
-        vc = await voice_channel.connect()
+        # voice_channel = message.author.voice.channel
+        # vc = await voice_channel.connect()
         print(f"spiele audiofile {audiofile.lower()} ab")
 
-        vc.play(discord.FFmpegOpusAudio('res/mp3s/{}.mp3'.format(audiofile.lower()), bitrate=64, executable='ffmpeg.exe', pipe=False))
+        if environment == "local":
+            ffmpeg = ffmpegpath
+        elif environment == "heroku":
+            ffmpeg = 'vendor/ffmpeg/ffmpeg'
 
-        while vc.is_playing() == True:
-            pass
-        else:
-            for x in bot.voice_clients:
-                if (x.guild == message.guild):
-                    await x.disconnect()
+        ctx.voice_client.play(discord.FFmpegOpusAudio('res/mp3s/{}.mp3'.format(audiofile.lower()), bitrate=24, executable=ffmpeg, pipe=False))
+
+        # while vc.is_playing() == False:
+        #     for x in bot.voice_clients:
+        #         if (x.guild == message.guild):
+        #             await x.disconnect()
 
     else:
-        voice_channel = message.author.voice.channel
-        vc = await voice_channel.connect()
-        vc.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
-        vc.source = discord.PCMVolumeTransformer(vc.source)
-        vc.source.volume = float(volume)
+        ctx.voice_client.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
+        ctx.voice_client.source = discord.PCMVolumeTransformer(ctx.voice_client.source)
+        ctx.voice_client.source.volume = float(volume)
         print(volume)
-        while vc.is_playing() == True:
-            pass
-        else:
-            for x in bot.voice_clients:
-                if (x.guild == message.guild):
-                    await x.disconnect()
 
-    while vc.is_playing() == True:
-        pass
-    else:
-        for x in bot.voice_clients:
-            if (x.guild == message.guild):
-                await x.disconnect()
 
 @bot.command(help="zeigt genau das hier an.")
 @commands.has_permissions(add_reactions=True,embed_links=True)
@@ -294,7 +279,7 @@ class Physik(commands.Cog):
         if argument == "random":
             volume = random.randint(0,50)
 
-        await Labern(audiofile=cutfile, message=ctx.message, volume=volume)
+        await Labern(audiofile=cutfile, volume=volume, ctx=ctx)
 
     @commands.command(help="Dateinahmen anhängen ODER url von Youtubevideo")
     async def Sag(self, ctx, argument=None, *args):
@@ -306,6 +291,8 @@ class Physik(commands.Cog):
                 getuser = ctx.message.server.get_member(str(x))
                 ctx.message.author = getuser
 
+        print(argument)
+        print(args)
 
         if argument:
             if "http" in argument:
@@ -324,9 +311,9 @@ class Physik(commands.Cog):
                     await ctx.send("Guck mal !mp3s und überleg ob du behindert bist")
                     return
                 elif len(args) == 1:
-                    await Labern(audiofile=play, message=ctx.message, volume=args[0])
+                    await Labern(audiofile=play, volume=args[0], ctx=ctx)
                 else:
-                    await Labern(audiofile=play, message=ctx.message, volume=None)
+                    await Labern(audiofile=play, volume=None, ctx=ctx)
 
                 filelist = []
                 for file in os.listdir('res/mp3s/'):
@@ -404,6 +391,16 @@ class Physik(commands.Cog):
         else:
             await ctx.send("Dumm oder was?")
 
+    @Sag.before_invoke
+    async def ensure_voice(self, ctx):
+        if ctx.voice_client is None:
+            if ctx.author.voice:
+                await ctx.author.voice.channel.connect()
+            else:
+                await ctx.send("You are not connected to a voice channel.")
+                raise commands.CommandError("Author not connected to a voice channel.")
+        elif ctx.voice_client.is_playing():
+            await ctx.voice_client.disconnect()
 
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
@@ -673,7 +670,7 @@ async def on_ready():
                 if channel.name == "general":
                     await channel.send("Bin gelandet auf Aldebaran.")
 
-    dropbox_download()
+    #dropbox_download()
 
     for guild in bot.guilds:
         if guild.id == 262510619503230976: #Shitheads
@@ -741,6 +738,8 @@ async def on_message(message):
     await bot.process_commands(message)
     if "donger" in str(message.content).lower():
         await message.channel.send("ヽ༼ຈل͜ຈ༽ﾉ")
+
+
 
 bot.add_cog(Physik(bot))
 bot.add_cog(Magie(bot))
