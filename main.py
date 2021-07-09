@@ -670,7 +670,7 @@ async def on_ready():
                 if channel.name == "general":
                     await channel.send("Bin gelandet auf Aldebaran.")
 
-    #dropbox_download()
+    dropbox_download()
 
     for guild in bot.guilds:
         if guild.id == 262510619503230976: #Shitheads
