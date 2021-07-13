@@ -116,23 +116,24 @@ def Mainbot():
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
 async def Labern(audiofile, volume, ctx):
+    def my_after(error):
+        import asyncio
+        coro = voice_client.disconnect()
+        fut = asyncio.run_coroutine_threadsafe(coro, bot.loop)
+        try:
+            fut.result()
+        except:
+            pass
+
+    voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+    if voice_client.is_connected():
+       if ctx.voice_client.channel is not ctx.message.author.voice.channel:
+           await ctx.voice_client.move_to(ctx.message.author.voice.channel)
+
     if volume is None:
-        # voice_channel = message.author.voice.channel
-        # vc = await voice_channel.connect()
         print(f"spiele audiofile {audiofile.lower()} ab")
-
-        if environment == "local":
-            ffmpeg = ffmpegpath
-        elif environment == "heroku":
-            ffmpeg = 'vendor/ffmpeg/ffmpeg'
-
-        ctx.voice_client.play(discord.FFmpegOpusAudio('res/mp3s/{}.mp3'.format(audiofile.lower()), bitrate=24, executable=ffmpeg, pipe=False))
-
-        # while vc.is_playing() == False:
-        #     for x in bot.voice_clients:
-        #         if (x.guild == message.guild):
-        #             await x.disconnect()
-
+        ctx.voice_client.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())),after=my_after)
+        #ctx.voice_client.play(discord.FFmpegOpusAudio('res/mp3s/{}.mp3'.format(audiofile.lower()), bitrate=24, executable=ffmpeg, pipe=False),after=my_after)
     else:
         ctx.voice_client.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
         ctx.voice_client.source = discord.PCMVolumeTransformer(ctx.voice_client.source)
@@ -286,10 +287,6 @@ class Physik(commands.Cog):
         url = None
         play = None
 
-        for x in args:
-            if "@" in str(x):
-                getuser = ctx.message.server.get_member(str(x))
-                ctx.message.author = getuser
 
         print(argument)
         print(args)
