@@ -279,6 +279,8 @@ class Physik(commands.Cog):
 
         if argument == "random":
             volume = random.randint(0,50)
+        else:
+            volume = argument
 
         await Labern(audiofile=cutfile, volume=volume, ctx=ctx)
 
