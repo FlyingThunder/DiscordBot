@@ -115,7 +115,8 @@ def Mainbot():
             print("reddit_posts.json cleared")
     return(post.url + " " + "\n" + post.title + " " + "\n" + "https://reddit.com/r/okbrudimongo/comments/"+x)
 
-async def Labern(audiofile, volume, ctx):
+async def Labern(audiofile, volume, ctx, tagged=None):
+    print(f"Labern gestartet mit Datei: {audiofile}, Lautstärke: {volume}, ctx: {ctx}")
     def my_after(error):
         import asyncio
         coro = voice_client.disconnect()
@@ -124,18 +125,20 @@ async def Labern(audiofile, volume, ctx):
             fut.result()
         except:
             pass
-
-    voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
-    if voice_client.is_connected():
-       if ctx.voice_client.channel is not ctx.message.author.voice.channel:
-           await ctx.voice_client.move_to(ctx.message.author.voice.channel)
+    try:
+        voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+        if voice_client.is_connected():
+           if ctx.voice_client.channel is not ctx.message.author.voice.channel:
+               await ctx.voice_client.move_to(ctx.message.author.voice.channel)
+    except:
+        print("Exception in creating voice client:" + str(Exception))
 
     if volume is None:
         print(f"spiele audiofile {audiofile.lower()} ab")
         ctx.voice_client.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())),after=my_after)
         #ctx.voice_client.play(discord.FFmpegOpusAudio('res/mp3s/{}.mp3'.format(audiofile.lower()), bitrate=24, executable=ffmpeg, pipe=False),after=my_after)
     else:
-        ctx.voice_client.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())))
+        ctx.voice_client.play(discord.FFmpegPCMAudio('res/mp3s/{}.mp3'.format(audiofile.lower())),after=my_after)
         ctx.voice_client.source = discord.PCMVolumeTransformer(ctx.voice_client.source)
         ctx.voice_client.source.volume = float(volume)
         print(volume)
@@ -273,14 +276,20 @@ class Physik(commands.Cog):
 
 
     @commands.command(help="Volume dazu angeben")
-    async def Random(self, ctx, argument=1):
+    async def Random(self, ctx, argument="1"):
+
+
+
+        print(f"Random argument: '{argument}'")
         file = random.choice(os.listdir("res/mp3s/"))
+        print(f"Zufallsdatei {file} ausgewählt")
         cutfile = file.replace(".mp3","")
 
         if argument == "random":
             volume = random.randint(0,50)
+            print(f"Zufallslautstärke {str(volume)} ausgewählt")
         else:
-            volume = argument
+            volume = int(argument)
 
         await Labern(audiofile=cutfile, volume=volume, ctx=ctx)
 
@@ -289,9 +298,16 @@ class Physik(commands.Cog):
         url = None
         play = None
 
+        args = list(args)
 
-        print(argument)
-        print(args)
+        print("ctx: " + str(ctx))
+        print("played file/url: " + str(argument))
+        print("args: " + str(args))
+
+        for x in args:
+            if "@" in str(x):
+                index = args.index(x)
+                del args[index]
 
         if argument:
             if "http" in argument:
@@ -347,11 +363,16 @@ class Physik(commands.Cog):
                         await ctx.send("Datei konnte nicht gefunden werden")
 
             elif url:
+                try:
+                    print("Versuche temp_file.mp3 zu löschen")
+                    os.remove('res/mp3s/temp_file.mp3')
+                except:
+                    print("Scheint nicht zu existieren?")
                 if len(args) == 0: #ganzes video, ohne volume
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", temp=True)
                     try:
                         print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
-                        await Labern(audiofile="temp_file", message=ctx.message, volume=None)
+                        await Labern(audiofile="temp_file", ctx=ctx, volume=None)
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
@@ -360,7 +381,7 @@ class Physik(commands.Cog):
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", temp=True)
                     try:
                         print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
-                        await Labern(audiofile="temp_file", message=ctx.message, volume=args[0])
+                        await Labern(audiofile="temp_file", ctx=ctx, volume=args[0])
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
@@ -369,7 +390,7 @@ class Physik(commands.Cog):
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", start=args[0], end=args[1], temp=True)
                     try:
                         print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
-                        await Labern(audiofile="temp_file", message=ctx.message, volume=None)
+                        await Labern(audiofile="temp_file", ctx=ctx, volume=None)
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
@@ -378,28 +399,33 @@ class Physik(commands.Cog):
                     await Magie.add_youtubeaudio(Magie(bot), url=url, ctx=ctx, name="temp_file", start=args[0], end=args[1], temp=True)
                     try:
                         print("Audiodatei wird abgespielt: " + "temp_file" + " von: " + str(ctx.author))
-                        await Labern(audiofile="temp_file", message=ctx.message, volume=args[2])
+                        await Labern(audiofile="temp_file", ctx=ctx, volume=args[2])
                     except Exception as e:
                         await ctx.send("Spast" + " " + ctx.author.mention)
                         print("Exception:" + str(e))
                     print("Audiodatei wird aus Youtubevideo abgespielt und anschließend gelöscht: " + url + "Zeit: " + str(args[0]) + " / " + str(args[1]) +  " von: " + str(ctx.author))
-                try:
-                    os.remove('res/mp3s/temp_file.mp3')
-                except:
-                    print("Scheint nicht zu existieren?")
+
         else:
             await ctx.send("Dumm oder was?")
 
     @Sag.before_invoke
+    @Random.before_invoke
     async def ensure_voice(self, ctx):
-        if ctx.voice_client is None:
-            if ctx.author.voice:
-                await ctx.author.voice.channel.connect()
-            else:
-                await ctx.send("You are not connected to a voice channel.")
-                raise commands.CommandError("Author not connected to a voice channel.")
-        elif ctx.voice_client.is_playing():
-            await ctx.voice_client.disconnect()
+        print(ctx.message.content.split(" "))
+        if "<@!" in str(ctx.message.content.split(" ")):
+            print("User tagged someone - ignoring author voice channel check")
+            getuser = ctx.message.mentions[0].voice.channel
+            await getuser.connect()
+        else:
+            if ctx.voice_client is None:
+                if ctx.author.voice:
+                    await ctx.author.voice.channel.connect()
+                else:
+                    await ctx.send("You are not connected to a voice channel.")
+                    raise commands.CommandError("Author not connected to a voice channel.")
+            elif ctx.voice_client.is_playing():
+                await ctx.voice_client.disconnect()
+
 
     @commands.command(help="keckige witze")
     async def Wissen(self, ctx):
@@ -612,6 +638,7 @@ class Magie(commands.Cog):
                     specs = str(start) + " " + str(end)
                     ext.extract_clips(specs)
                     try:
+                        print("Trying to remove old file")
                         os.remove('res/mp3s/' + str(name).lower() + '.mp3')
                     except:
                         pass
