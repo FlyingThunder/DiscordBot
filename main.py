@@ -28,7 +28,7 @@ tft_api_key = os.getenv("tft_api_key")
 
 dbx = dropbox.Dropbox(dropbox_key)
 
-environment = "heroku" #local/heroku
+environment = "local" #local/heroku
 
 # bot command präfix
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
